@@ -162,10 +162,24 @@ def apply_modifiers(n):
         ("generators", "pvplant|wind", "CAPEX_RES"),
         ("links", "pipeline", "CAPEX_pipeline"),
         ("links", "methanolisation", "CAPEX_MeOHSynthesis"),
+        ("links", "direct air capture", "CAPEX_DAC"),
+        ("stores", "hydrogen storage tank", "CAPEX_H2storage"),
     ]
     for components_name, search_string, modifier_name in mapping:
         c = getattr(n, components_name)
         c.loc[c.index.str.contains(search_string), "capital_cost"] *= scenario[
+            "modifiers"
+        ][modifier_name]
+
+    # Modifiers which are applied here:
+    # type(s) of component and the component(s) each modifier affect
+    mapping = [
+        ("generators", "biogenic co2", "OPEX_bioco2"),
+        ("generators", "electricity sold", "WTP_excess_power"),
+    ]
+    for components_name, search_string, modifier_name in mapping:
+        c = getattr(n, components_name)
+        c.loc[c.index.str.contains(search_string), "marginal_cost"] *= scenario[
             "modifiers"
         ][modifier_name]
 
