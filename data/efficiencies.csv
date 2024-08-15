@@ -1,5 +1,6 @@
 process,year,from,from_amount,from_unit,to,to_amount,to_unit,efficiency,comment,source
 electrolysis,all,electricity,49.0196,MWh,hydrogen (g),33.3333,MWh_LHV,0.68,Aligned with PyPSA-EUR.,
+electrolysis,all,electricity,1,MWh,heat,0.17,MWh_th,0.17,,
 battery inverter,all,electricity,1,MWh,battery,0.979795897113271,MWh,0.9798,from DEA technology assumptions via technology-data repository,DEA
 battery inverter,all,battery,1,MWh,electricity,0.979795897113271,MWh,0.9798,from DEA technology assumptions via technology-data repository,DEA
 HVDC inverter pair,all,electricity,1,p.u.,hvdc,0.99,p.u.,0.99,Losses for voltage source converters (VSCs). Line commutated converters (LLC) would be lower ~0.7%.,d’Amore-Domenech et al (2021): 10.1016/j.apenergy.2021.116625 .
@@ -52,6 +53,7 @@ CH4 storage unstoring,all,methane (g) storage,1,m^3,methane (g),2.32997222222222
 CH4 (l) storing and unstoring,all,methane (l),0.42236,t,methane (l) storage,1,m^3,2.36764845155791,"Auxiliary efficiency. Storage units are usually per m^3, component for unit conversion. Based on density of  422.36 kg/m^3.",https://encyclopedia.airliquide.com/methane (2021-02-10).
 Fischer-Tropsch,all,hydrogen (g),1,MWh_LHV,FT fuel,0.799,MWh_LHV,0.799,See PyPSA-EUR-Sec.,https://github.com/PyPSA/technology-data/blob/v0.4.0/outputs/costs_2030.csv
 Fischer-Tropsch,all,CO2 (g),0.2571,t,FT fuel,1,MWh_LHV,3.8899,See PyPSA-EUR-Sec.,https://github.com/PyPSA/technology-data/blob/v0.4.0/outputs/costs_2030.csv
+Fischer-Tropsch,all,hydrogen (g),1,MWh_LHV,heat,0.0799,MWh_th,0.0799,,
 ship loading,all,FT fuel,11.95,MWh_LHV,berth,1,t,0.083682008368201,Auxiliar process: converting between MWh_LHV and weight for shipping purposes. Converted assuming a product composition of 75% jet fuels/25% kerosene with a combined LHV of 11.95 MWh/t = (0.75*11.95+0.25*11.95)MWh/t.,n/a
 ship unloading,all,berth,1,t,FT fuel,11.95,MWh_LHV,11.95,Auxiliar process: converting between MWh_LHV and weight for shipping purposes. Converted assuming a product composition of 75% jet fuels/25% kerosene with a combined LHV of 11.95 MWh/t = (0.75*11.95+0.25*11.95)MWh/t.,n/a
 FT fuel storing and unstoring,all,FT fuel,9.799,MWh_LHV,FT fuel storage,1,m^3,0.102051229717318,"Storage units are usually per m^3, component for unit conversion. Based on FT fuel composition of 75% jet fuel/25% kerosene and a resulting density of 0.820 t/m^3 = (0.75*0.820 + 0.25*0.821)t/m^3 and LHV of 11.95 MWh/t = (0.75*11.95+0.25*11.95)MWh/t",

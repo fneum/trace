@@ -6,6 +6,75 @@ logging:
   level: INFO
 
 scenarios:
+  high-electrolysis-150:
+    modifiers:
+      CAPEX_electrolysis: 1.5
+  high-electrolysis-125:
+    modifiers:
+      CAPEX_electrolysis: 1.25
+  high-electrolysis-200:
+    modifiers:
+      CAPEX_electrolysis: 2
+  high-electrolysis-300:
+    modifiers:
+      CAPEX_electrolysis: 3
+  high-dac-125:
+    modifiers:
+      CAPEX_DAC: 1.25
+  high-dac-150:
+    modifiers:
+      CAPEX_DAC: 1.5
+  high-dac-200:
+    modifiers:
+      CAPEX_DAC: 2
+  high-dac-300:
+    modifiers:
+      CAPEX_DAC: 3
+  high-wacc:
+    modifiers:
+      wacc: 1.71429 # 12%
+  low-wacc:
+    modifiers:
+      wacc: 0.42857 # 3%
+  high-wacc-10:
+    modifiers:
+      wacc: 1.42857 # 10%
+  low-wacc-5:
+    modifiers:
+      wacc: 0.71428 # 5%
+  high-wacc-8:
+    modifiers:
+      wacc: 1.14286 # 10%
+  low-wacc-6:
+    modifiers:
+      wacc: 0.85714 # 5%
+  high-bioco2cost:
+    modifiers:
+      OPEX_bioco2: 1.5 #75 €/MWh
+  high-bioco2cost-60:
+    modifiers:
+      OPEX_bioco2: 1.2 #60 €/MWh
+  high-bioco2cost-80:
+    modifiers:
+      OPEX_bioco2: 1.6 #60 €/MWh
+  high-bioco2cost-100:
+    modifiers:
+      OPEX_bioco2: 2 #60 €/MWh
+  cavern-h2-storage:
+    modifiers:
+      CAPEX_H2storage: 0.05 # 0.05 * 45 €/kWh
+  excess-power-20:
+    modifiers:
+      WTP_excess_power: 2 # 20 €/MWh
+  excess-power-30:
+    modifiers:
+      WTP_excess_power: 3 # 30 €/MWh
+  excess-power-40:
+    modifiers:
+      WTP_excess_power: 4 # 40 €/MWh
+  excess-power-50:
+    modifiers:
+      WTP_excess_power: 5 # 50 €/MWh
   default:   # All scenarios are based on this scenario and may overwrite the here specified parameters
         # WACC scenario assumptions, see "data/wacc.csv"
         # Currently supported: homogeneous, irena, inhomogeneous
@@ -53,6 +122,10 @@ scenarios:
       CAPEX_electrolysis: 1        # CAPEX of electrolysis
       CAPEX_MeOHSynthesis: 1       # CAPEX related to methanol synthesis
       CAPEX_pipeline: 1            # CAPEX of pipeline and related technologies (H2 and CH4, submarine and onland, pipeline and pipeline compressors)
+      CAPEX_DAC: 1                 # CAPEX of DAC
+      CAPEX_H2storage: 1           # CAPEX of hydrogen storage
+      OPEX_bioco2: 1               # cost of biogenic CO2
+      WTP_excess_power: 1          # willingness to pay for excess power 
 
 # Weather year for which ERA5 data is used
 renewables:
@@ -321,7 +394,7 @@ solver:
     BarConvTol: 1.e-5
     FeasibilityTol: 1.e-5
     OptimalityTol: 1.e-5
-    threads: 8
+    threads: 4
     seed: 10              # Consistent seed for all plattforms
   numeric-focus:
     name: gurobi
