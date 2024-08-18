@@ -198,14 +198,13 @@ rule build_potentials_and_profiles:
         technology_details=lambda w: config["renewables"][w.technology],
     wildcard_constraints:
         technology="(pvplant|wind_onshore|wind_offshore|csp_tower)",
-    threads: 4
+    threads: 8
     log:
         python="logs/build_potentials_and_profiles/{region}_{technology}.log",
-        notebook="logs/build_potentials_and_profiles/{region}_{technology}.py.ipynb",
     benchmark:
         "benchmarks/build_potentials_and_profiles/{region}_{technology}.csv"
-    notebook:
-        "../actions/build_potentials_and_profiles.py.ipynb"
+    script:
+        "../actions/build_potentials_and_profiles.py"
 
 
 # Convert atlite RES supply files into a single file
