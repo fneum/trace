@@ -10,15 +10,16 @@ dependencies:
 
   # Managing data
 - xarray
-- rioxarray
-- richdem
 - dask
 - pandas
-- geopandas
+- geopandas>=1
 - geoviews
 - numpy
 - gdal
 - zip
+- requests
+- curl
+- openpyxl
 
   # Visualisation
 - matplotlib
@@ -32,11 +33,10 @@ dependencies:
 
   # Modelling framework
 - pycountry
-- pypsa
-- atlite
+- pypsa<0.29 # until n.optimize() is used
 
   # Data retrieval
-- cdsapi
+- cdsapi>=0.7.0
 
   # Auxiliary packages for atlite (explicitly required from conda-forge while it is installed via pip)
 - rasterio
@@ -44,7 +44,7 @@ dependencies:
 - bottleneck
 
   # Workflow management
-- snakemake
+- snakemake>=8.5
 - snakefmt
 - notebook
 - nbconvert
@@ -59,3 +59,11 @@ dependencies:
 - pre-commit
 
 - pip
+
+- pip:
+  - snakemake-storage-plugin-http
+  - snakemake-executor-plugin-slurm
+  - snakemake-executor-plugin-cluster-generic
+  - git+https://github.com/pypsa/atlite.git@monthly-requests
+  - searoute
+  - haversine

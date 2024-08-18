@@ -8,11 +8,11 @@ import pandas as pd
 from snakemake.utils import Paramspace
 from snakemake.utils import update_config
 from shutil import move
-from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
-from snakemake.io import load_configfile
+from snakemake.common.configfile import load_configfile
 
-HTTP = HTTPRemoteProvider()
+from snakemake.utils import min_version
 
+min_version("8.5")
 
 # Specify config file
 configfile: "config/config.default.yaml"

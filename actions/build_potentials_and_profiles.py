@@ -24,8 +24,6 @@ import hvplot.xarray
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import richdem
-import rioxarray as rioxr
 import xarray as xr
 from matplotlib import colors
 from rasterio.plot import show
