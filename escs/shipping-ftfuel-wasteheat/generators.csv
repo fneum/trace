@@ -1,2 +1,2 @@
 name,bus,p_nom_extendable,marginal_cost,p_max_pu,p_min_pu,
-heat vent (exp),heat (exp),True,0,0,-1,
+heat vent (exp),heat (exp),True,10,0,-1,
