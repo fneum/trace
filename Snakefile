@@ -43,3 +43,14 @@ include: "rules/esc_construction.smk"
 include: "rules/solving.smk"
 include: "rules/results.smk"
 include: "rules/plotting.smk"
+
+rule sync:
+    params:
+        cluster=f"{config['remote']['ssh']}:{config['remote']['path']}",
+    shell:
+        """
+        rsync -uvarh --ignore-missing-args --files-from=.sync-send . {params.cluster}
+        rsync -uvarh --no-g --exclude-from=.sync-receive-ignore {params.cluster}/resources . || echo "No resources directory, skipping rsync"
+        rsync -uvarh --no-g --exclude-from=.sync-receive-ignore {params.cluster}/results . || echo "No results directory, skipping rsync"
+        rsync -uvarh --no-g --exclude-from=.sync-receive-ignore {params.cluster}/logs . || echo "No logs directory, skipping rsync"
+        """

@@ -5,6 +5,10 @@
 logging:
   level: INFO
 
+remote:
+  ssh: "z1"
+  path: "SCRATCH/projects/import-benefits/trace"
+
 scenarios:
   high-electrolysis-150:
     modifiers:

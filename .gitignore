@@ -140,3 +140,5 @@ workbench/
 analysis/
 data/technology-data/
 benchmarks/
+
+*.html
