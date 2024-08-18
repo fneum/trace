@@ -14,6 +14,7 @@ l = []
 
 n = pypsa.Network()
 n.import_from_netcdf(snakemake.input["network"])
+weights = n.snapshot_weightings.generators
 
 res = n.generators_t["p"].filter(regex="wind|pvplant")
 res = res.loc[:, (res != 0.0).any()]
@@ -48,7 +49,7 @@ l.append(
     [
         category,
         f"Cost per {load_unit} delivered",
-        n.objective / n.loads_t["p"].sum().sum(),
+        n.objective / (weights @ n.loads_t["p"]).sum(),
     ]
 )
 
@@ -57,7 +58,7 @@ l.append(
     [
         category,
         "Total demand",
-        n.loads_t["p"].sum().sum(),
+        (weights @ n.loads_t["p"]).sum(),
     ]
 )
 
@@ -82,23 +83,21 @@ for g, v in n.generators.groupby("carrier")["p_nom_opt"].sum().items():
     l.append([category, f"Total installed capacity {g}", v])
 
 # Generated electricity from CSP power block or conventional renewables
-(
-    n.links_t["p1"]
-    .filter(like="csp-tower power block", axis="columns")
-    .abs()
-    .sum()
-    .sum()
-    + n.generators_t["p"].filter(regex="solar-utility|wind", axis="columns").sum().sum()
-)
+# (
+#     (weights @ n.links_t["p1"]
+#     .filter(like="csp-tower power block", axis="columns")
+#     .abs())
+#     .sum()
+#     + (weights @ n.generators_t["p"].filter(regex="solar-utility|wind", axis="columns")).sum()
+# )
 
 # Generated electricity from CSP power block or conventional renewables
 elec = pd.concat(
     [
-        n.links_t["p1"]
+        (weights @ n.links_t["p1"]
         .filter(like="csp-tower power block", axis="columns")
-        .abs()
-        .sum(),
-        n.generators_t["p"].filter(regex="solar-utility|wind", axis="columns").sum(),
+        .abs()),
+        (weights @ n.generators_t["p"].filter(regex="solar-utility|wind", axis="columns"),
     ]
 )
 
@@ -118,7 +117,7 @@ l.append(
     [
         "general",
         "Energy surplus factor",
-        elec.sum() / n.loads_t["p"].sum().sum(),
+        elec.sum() / (weights @ n.loads_t["p"]).sum(),
     ]
 )
 
@@ -131,8 +130,7 @@ l.append(
     [
         category,
         "Curtailed RES energy",
-        (n.generators_t["p_max_pu"] * n.generators["p_nom_opt"] - n.generators_t["p"])
-        .sum(axis=1)
+        (weights @ (n.generators_t["p_max_pu"] * n.generators["p_nom_opt"] - n.generators_t["p"]))
         .sum(),
     ]
 )
@@ -149,7 +147,7 @@ t_t = getattr(n, "generators_t")
 t = (
     (
         (t["p_nom_opt"].clip(lower=0.0) * t["capital_cost"])
-        + (t_t["p"] * t["marginal_cost"]).sum()
+        + weights @ (t_t["p"] * t["marginal_cost"])
     )
     .replace(0.0, np.nan)
     .dropna()
@@ -163,7 +161,7 @@ t_t = getattr(n, "links_t")
 t = (
     (
         t["p_nom_opt"].clip(lower=0) * t["capital_cost"]
-        + (t_t["p0"] * t["marginal_cost"]).sum()
+        + weights @ (t_t["p0"] * t["marginal_cost"])
     )
     .replace(0.0, np.nan)
     .dropna()
@@ -178,7 +176,7 @@ t_t = getattr(n, "stores_t")
 t = (
     (
         t["e_nom_opt"].clip(lower=0) * t["capital_cost"]
-        + (t_t["e"] * t["marginal_cost"]).sum()
+        + weights @ (t_t["e"] * t["marginal_cost"])
     )
     .replace(0.0, np.nan)
     .dropna()

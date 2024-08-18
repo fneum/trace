@@ -11,7 +11,7 @@ from _helpers import configure_logging
 
 logger = logging.getLogger(__name__)
 
-from pypsa.linopt import define_constraints, get_var, linexpr
+from pypsa.linopt import get_var, linexpr
 
 
 def extra_functionality(n, snapshots):
@@ -190,6 +190,21 @@ def apply_modifiers(n):
     return n
 
 
+def average_every_nhours(n, offset):
+    m = n.copy(with_time=False)#
+
+    snapshot_weightings = n.snapshot_weightings.resample(offset).sum()
+    m.set_snapshots(snapshot_weightings.index)
+    m.snapshot_weightings = snapshot_weightings
+
+    for c in n.iterate_components():
+        pnl = getattr(m, c.list_name + "_t")
+        for k, df in c.pnl.items():
+            if not df.empty:
+                pnl[k] = df.resample(offset).mean()
+
+    return m
+
 # In[ ]:
 
 
@@ -209,6 +224,9 @@ if __name__ == "__main__":
         network.import_from_netcdf(snakemake.input["network"])
         network = apply_modifiers(network)
         network = clean_network(network)
+
+        offset = snakemake.config["time_resolution"]
+        network = average_every_nhours(network, offset)
 
         logger.info(
             f'Solving network using solver options "{op}":\n' f"{solver_options}"
