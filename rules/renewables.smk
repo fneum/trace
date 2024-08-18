@@ -247,6 +247,8 @@ rule build_potentials_and_profiles:
     wildcard_constraints:
         technology="(pvplant|wind_onshore|wind_offshore|csp_tower)",
     threads: 8
+    resources:
+        mem_mb=24000,
     log:
         python="logs/build_potentials_and_profiles/{region}_{technology}.log",
     benchmark:

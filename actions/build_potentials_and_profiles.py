@@ -11,9 +11,9 @@ pgb.streams.wrap_stderr()
 import functools
 import logging
 import os
-import tempfile
+import time
+from tempfile import NamedTemporaryFile
 from datetime import datetime
-from pathlib import Path
 
 import atlite
 import fiona
@@ -27,6 +27,7 @@ import pandas as pd
 import xarray as xr
 from matplotlib import colors
 from rasterio.plot import show
+from dask.distributed import Client
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,15 @@ def get_wdpa_layer_name(wdpa_fn, layer_substring):
 
 def do_main():
     configure_logging(snakemake)
+
+    nprocesses = int(snakemake.threads)
+
+    if nprocesses > 1:
+        client = Client(n_workers=nprocesses, threads_per_worker=1)
+        dask_kwargs = {"scheduler": client}
+    else:
+        client = None
+        dask_kwargs = {}
 
     technology_details = snakemake.params["technology_details"]
 
@@ -115,8 +125,14 @@ def do_main():
             wdpa = wdpa.to_crs(crs_ea)
 
             logging.info(f"Excluding {len(wdpa)} PA polygon areas.")
+            # temporary file needed for parallelization
+            with NamedTemporaryFile(suffix=".geojson", delete=False) as f:
+                plg_tmp_fn = f.name
             if not wdpa.empty:
-                excluder.add_geometry(wdpa["geometry"])
+                wdpa[["geometry"]].to_file(plg_tmp_fn)
+                while not os.path.exists(plg_tmp_fn):
+                    time.sleep(1)
+                excluder.add_geometry(plg_tmp_fn)
 
         # Points are assumed to be the center of an protected area
         # A circular area around this assumed center with the reported
@@ -148,8 +164,14 @@ def do_main():
             wdpa = wdpa.set_geometry(wdpa["geometry"].buffer(wdpa["buffer_radius"]))
 
             logging.info(f"Excluding {len(wdpa)} PA point areas.")
+            # temporary file needed for parallelization
+            with NamedTemporaryFile(suffix=".geojson", delete=False) as f:
+                pts_tmp_fn = f.name
             if not wdpa.empty:
-                excluder.add_geometry(wdpa["geometry"])
+                wdpa[["geometry"]].to_file(pts_tmp_fn)
+                while not os.path.exists(pts_tmp_fn):
+                    time.sleep(1)
+                excluder.add_geometry(pts_tmp_fn)
 
     if technology_details["wdpa_marine"]:
         logger.info("Adding WDPA marine information...")
@@ -346,7 +368,7 @@ def do_main():
     ## Determine eligible/excluded areas on cutout raster (grid cell level)
     logger.info("Calculating eligible RES build areas...")
     availability = cutout.availabilitymatrix(
-        build_region, excluder, disable_progressbar=True
+        build_region, excluder, nprocesses=nprocesses, disable_progressbar=True
     )
     availability = availability.rename("Grid cell share available for RES")
     availability.attrs["units"] = "p.u."
@@ -369,7 +391,12 @@ def do_main():
     ## Calculate each grid cells capacity factor to create quality classes
     logger.info("Calculating Capacity Factor...")
     func = getattr(cutout, technology_details["atlite"].pop("method"))
-    capacity_factor = func(capacity_factor=True, **technology_details["atlite"])
+    capacity_factor = func(
+        capacity_factor=True,
+        dask_kwargs=dask_kwargs,
+        show_progress=False,
+        **technology_details["atlite"],
+    )
 
     ## Plot/save technical potential (map) and capacity factor (map)
     plot = potential.hvplot(
@@ -410,6 +437,8 @@ def do_main():
         index=masks.coords["class"],
         per_unit=True,
         return_capacity=True,
+        dask_kwargs=dask_kwargs,
+        show_progress=False,
         **technology_details["atlite"],
     )
 
@@ -419,9 +448,11 @@ def do_main():
     ds.to_netcdf(snakemake.output["profiles"])
     logger.info("Done.")
 
+    if client is not None:
+        client.shutdown()
+
 
 if __name__ == "__main__":
     # Required so we can "return" prematurely to end the script
     # sys.exit() is unsuitable for usage in workflows
     do_main()
-
