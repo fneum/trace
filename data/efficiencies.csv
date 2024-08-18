@@ -1,6 +1,6 @@
 process,year,from,from_amount,from_unit,to,to_amount,to_unit,efficiency,comment,source
-electrolysis,all,electricity,49.0196,MWh,hydrogen (g),33.3333,MWh_LHV,0.68,Aligned with PyPSA-EUR.,
-electrolysis,all,electricity,1,MWh,heat,0.17,MWh_th,0.17,,
+electrolysis,all,electricity,53.6164,MWh,hydrogen (g),33.3333,MWh_LHV,0.6217,Aligned with PyPSA-EUR.,
+electrolysis,all,electricity,1,MWh,heat,0.2228,MWh_th,0.2228,,
 battery inverter,all,electricity,1,MWh,battery,0.979795897113271,MWh,0.9798,from DEA technology assumptions via technology-data repository,DEA
 battery inverter,all,battery,1,MWh,electricity,0.979795897113271,MWh,0.9798,from DEA technology assumptions via technology-data repository,DEA
 HVDC inverter pair,all,electricity,1,p.u.,hvdc,0.99,p.u.,0.99,Losses for voltage source converters (VSCs). Line commutated converters (LLC) would be lower ~0.7%.,d’Amore-Domenech et al (2021): 10.1016/j.apenergy.2021.116625 .
@@ -28,8 +28,8 @@ H2 evaporation,all,electricity,0.6,MWh,hydrogen (g),33.3333,MWh_LHV,55.5555,.6 k
 CH4 liquefaction,all,methane (g),13.8888,MWh_LHV,methane (l),1,t,0.072000460802949,"For refrigeration cycle, cleaning of gas presumed unnecessary as it should be nearly pure CH4 (=SNG). Assuming energy required is only electricity which is for Table 3 in the source provided with efficiencies of ~50% of LHV, making the numbers consistent with the numbers in Table 2.","Pospíšil et al. 2019: https://doi.org/10.1016/j.rser.2018.09.027 , Table 2 and Table 3."
 CH4 liquefaction,all,electricity,0.5,MWh,methane (l),1,t,2,"Assuming 0.5 MWh/t_CH4 for refigeration cycle based on Table 2 of source; cleaning of gas presumed unnecessary as it should be nearly pure CH4 (=SNG). Assuming energy required is only electricity which is for Table 3 in the source provided with efficiencies of ~50% of LHV, making the numbers consistent with the numbers in Table 2.","Pospíšil et al. 2019: https://doi.org/10.1016/j.rser.2018.09.027 , Table 2 and Table 3. Source 2: https://encyclopedia.airliquide.com/methane (2021-02-10)."
 CH4 evaporation,all,methane (l),1,t,methane (g),13.611024,MWh_LHV,13.611024,98% efficiency.,"Pospíšil et al. 2019: https://doi.org/10.1016/j.rser.2018.09.027 , Fig. 14."
-Haber-Bosch,all,electricity,1.17,MWh,ammonia (g),5.1666,MWh_LHV,4.4159,See PyPSA-EUR-Sec.,
-Haber-Bosch,all,hydrogen (g),6.5,MWh_LHV,ammonia (g),5.1666,MWh_LHV,0.7949,See PyPSA-EUR-Sec.,"DECHEMA 2017: DECHEMA: Low carbon energy and feedstock for the European chemical industry , pg. 57."
+Haber-Bosch,all,electricity,1.2777,MWh,ammonia (g),5.1666,MWh_LHV,4.0437,See PyPSA-EUR-Sec.,
+Haber-Bosch,all,hydrogen (g),5.9333,MWh_LHV,ammonia (g),5.1666,MWh_LHV,0.8708,See PyPSA-EUR-Sec.,"DECHEMA 2017: DECHEMA: Low carbon energy and feedstock for the European chemical industry , pg. 57."
 NH3 liquefaction,all,ammonia (g),1,p.u.,ammonia (l),1,p.u.,1,,
 NH3 liquefaction,all,electricity,0.001,p.u.,ammonia (l),1,p.u.,1000,0.1% of energy content of ammonia required for refrigeration.,Dias et al. 2020: https://www.frontiersin.org/articles/10.3389/fmech.2020.00021/full
 NH3 evaporation,all,ammonia (l),1,p.u.,ammonia (g),1,p.u.,1,guess. TODO: check.,
