@@ -4,35 +4,53 @@
 
 # - Rules for determining renewables potentials and time-series - #
 
+import requests
 from pathlib import Path
-
-# For downloading files using Snakemake
-from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
-
-HTTP = HTTPRemoteProvider()
-
+from shutil import unpack_archive
+from datetime import datetime, timedelta
 
 rule download_eez:
     message:
-        """Trying to download EEZ files. If this fail, manually download from https://www.marineregions.org/download_file.php?name=World_EEZ_v11_20191118_gpkg.zip and extract them into the 'resources/' folder."""
+        """Trying to download EEZ files. If this fail, manually download from https://www.marineregions.org/download_file.php?name=World_EEZ_v12_20231025_LR.zip and extract them into the 'resources/' folder."""
+    params:
+        zip="resources/World_EEZ_v12_20231025_LR.zip",
     output:
-        zip="resources/World_EEZ_v11_20191118_gpkg.zip",
-        gpkg="resources/World_EEZ_v11_20191118_gpkg/eez_v11.gpkg",
+        gpkg="resources/World_EEZ_v12_20231025_LR/eez_v12_lowres.gpkg",
     run:
-        shell(
-            "curl  -X POST --data 'name=Name&organisation=Organisation&email=e.mail%40inter.net&country=Germany&user_category=academia&purpose_category=Research&agree=1' 'https://www.marineregions.org/download_file.php?name=World_EEZ_v11_20191118_gpkg.zip' --output '{output.zip}'"
+        import os
+        import requests
+        from uuid import uuid4
+
+        name = str(uuid4())[:8]
+        org = str(uuid4())[:8]
+
+        response = requests.post(
+            "https://www.marineregions.org/download_file.php",
+            params={"name": "World_EEZ_v12_20231025_LR.zip"},
+            data={
+                "name": name,
+                "organisation": org,
+                "email": f"{name}@{org}.org",
+                "country": "Germany",
+                "user_category": "academia",
+                "purpose_category": "Research",
+                "agree": "1",
+            },
         )
-        output_folder = Path(output["zip"]).parent
-        shell("unzip {output.zip} -d {output_folder}")
+
+        with open(params["zip"], "wb") as f:
+            f.write(response.content)
+        output_folder = Path(params["zip"]).parent
+        unpack_archive(params["zip"], output_folder)
+        os.remove(params["zip"])
 
 
 # Downloading Copernicus Global Land Cover for land cover and land use:
 # Website: https://land.copernicus.eu/global/products/lc
 rule download_land_cover:
     input:
-        HTTP.remote(
-            "zenodo.org/record/3939050/files/PROBAV_LC100_global_v3.0.1_2019-nrt_Discrete-Classification-map_EPSG-4326.tif",
-            static=True,
+        storage(
+            "https://zenodo.org/record/3939050/files/PROBAV_LC100_global_v3.0.1_2019-nrt_Discrete-Classification-map_EPSG-4326.tif",
         ),
     output:
         "resources/Copernicus_LC100_global_v3.0.1_2019-nrt_Discrete-Classification-map_EPSG-4326.tif",
@@ -44,10 +62,8 @@ rule download_land_cover:
 # Website: https://www.gebco.net/data_and_products/gridded_bathymetry_data/#global
 rule download_gebco:
     input:
-        HTTP.remote(
-            "www.bodc.ac.uk/data/open_download/gebco/gebco_2021/zip",
-            additional_request_string="/",
-            static=True,
+        storage(
+            "https://www.bodc.ac.uk/data/open_download/gebco/gebco_2021/zip/",
         ),
     output:
         zip="resources/gebco_2021.zip",
@@ -61,7 +77,7 @@ rule download_gebco:
 # Transform the GEBCO dataset into a second dataset
 # with georeferenced slope values (in percent) for all locations
 # Projection of the output dataset is Global Mollweide (ESRI:54009)
-rule calcualte_gebco_slope:
+rule calculate_gebco_slope:
     input:
         gebco="resources/gebco/GEBCO_2021.nc",
     output:
@@ -79,27 +95,54 @@ rule calcualte_gebco_slope:
             "gdal_translate -of netCDF -co FORMAT=NC4 -co COMPRESS=DEFLATE -co ZLEVEL=1 {output.slope_inflated} {output.slope}"
         )
 
+# Preparation for WDPA downloads
+
+def check_file_exists(url):
+    response = requests.head(url)
+    return response.status_code == 200
+
+# Basic pattern where WDPA files can be found
+url_pattern = (
+    "https://d1gam3xoknrgr2.cloudfront.net/current/WDPA_{bYYYY}_Public_shp.zip"
+)
+
+# 3-letter month + 4 digit year for current/previous/next month to test
+current_monthyear = datetime.now().strftime("%b%Y")
+prev_monthyear = (datetime.now() - timedelta(30)).strftime("%b%Y")
+next_monthyear = (datetime.now() + timedelta(30)).strftime("%b%Y")
+
+# Test prioritised: current month -> previous -> next
+for bYYYY in [current_monthyear, prev_monthyear, next_monthyear]:
+    if check_file_exists(url := url_pattern.format(bYYYY=bYYYY)):
+        break
+    else:
+        # If None of the three URLs are working
+        url = False
+
+assert (
+    url
+), f"No WDPA files found at {url_pattern} for bY='{current_monthyear}, {prev_monthyear}, or {next_monthyear}'"
 
 # Downloading Marine protected area database from WDPA
 # extract the main zip and then merge the contained 3 zipped shapefiles
 # Website: https://www.protectedplanet.net/en/thematic-areas/marine-protected-areas
 rule download_wdpa_marine:
     input:
-        HTTP.remote(
-            "d1gam3xoknrgr2.cloudfront.net/current/WDPA_WDOECM_Feb2022_Public_marine_shp.zip",
-            static=True,
+        storage(
+            f"https://d1gam3xoknrgr2.cloudfront.net/current/WDPA_WDOECM_{bYYYY}_Public_marine_shp.zip",
+            keep_local=True,
         ),
     output:
-        zip="resources/WDPA_WDOECM_Feb2022_marine.zip",
-        folder=directory("resources/WDPA_WDOECM_Feb2022_marine"),
-        gpkg="resources/WDPA_WDOECM_Feb2022_marine.gpkg",
+        zip="resources/WDPA_WDOECM_marine.zip",
+        folder=directory("resources/WDPA_WDOECM_marine"),
+        gpkg="resources/WDPA_WDOECM_marine.gpkg",
     run:
         shell("mv {input} {output.zip}")
         shell("unzip {output.zip} -d {output.folder}")
         for i in range(3):
             # vsizip is special driver for directly working with zipped shapefiles in ogr2ogr
             layer_path = (
-                f"/vsizip/{output.folder}/WDPA_WDOECM_Feb2022_Public_marine_shp_{i}.zip"
+                f"/vsizip/{output.folder}/WDPA_WDOECM_{bYYYY}_Public_marine_shp_{i}.zip"
             )
             print(f"Adding layer {i+1} of 3 to combined output file.")
             shell("ogr2ogr -f gpkg -update -append {output.gpkg} {layer_path}")
@@ -110,20 +153,17 @@ rule download_wdpa_marine:
 # Website: https://www.protectedplanet.net/en/thematic-areas/wdpa
 rule download_wdpa:
     input:
-        HTTP.remote(
-            "d1gam3xoknrgr2.cloudfront.net/current/WDPA_Feb2022_Public_shp.zip",
-            static=True,
-        ),
+        storage(url, keep_local=True),
     output:
-        zip="resources/WDPA_Feb2022_shp.zip",
-        folder=directory("resources/WDPA_Feb2022"),
-        gpkg="resources/WDPA_Feb2022.gpkg",
+        zip="resources/WDPA_shp.zip",
+        folder=directory("resources/WDPA"),
+        gpkg="resources/WDPA.gpkg",
     run:
         shell("mv {input} {output.zip}")
         shell("unzip {output.zip} -d {output.folder}")
         for i in range(3):
             # vsizip is special driver for directly working with zipped shapefiles in ogr2ogr
-            layer_path = f"/vsizip/{output.folder}/WDPA_Feb2022_Public_shp_{i}.zip"
+            layer_path = f"/vsizip/{output.folder}/WDPA_{bYYYY}_Public_shp_{i}.zip"
             print(f"Adding layer {i+1} of 3 to combined output file.")
             shell("ogr2ogr -f gpkg -update -append {output.gpkg} {layer_path}")
 
@@ -192,8 +232,8 @@ rule build_potentials_and_profiles:
         copernicus="resources/Copernicus_LC100_global_v3.0.1_2019-nrt_Discrete-Classification-map_EPSG-4326.tif",
         gebco="resources/gebco/GEBCO_2021.nc",
         gebco_slope="resources/gebco/GEBCO_2021_slope.nc",
-        wdpa="resources/WDPA_Feb2022.gpkg",
-        wdpa_marine="resources/WDPA_WDOECM_Feb2022_marine.gpkg",
+        wdpa="resources/WDPA.gpkg",
+        wdpa_marine="resources/WDPA_WDOECM_marine.gpkg",
         shipping_routes="resources/shipdensity/shipdensity_global.tif",
         cutout="resources/cutouts/{region}.nc",
         region="resources/regions/{region}.gpkg",
@@ -236,15 +276,30 @@ rule combine_atlite_supply:
 # Website: https://gadm.org/
 rule download_gadm:
     input:
-        HTTP.remote(
-            "biogeo.ucdavis.edu/data/gadm3.6/gadm36_levels_gpkg.zip",
-            static=True,
+        storage(
+            "https://geodata.ucdavis.edu/gadm/gadm3.6/gadm36_levels_gpkg.zip",
+            keep_local=True,
         ),
     output:
         "resources/gadm/gadm36_levels.gpkg",
     run:
         output_folder = Path(output[0]).parent
         shell("unzip {input} -d {output_folder}")
+
+
+# Downloading Global LNG Terminals database
+# Website: https://globalenergymonitor.org
+rule download_lng_terminals:
+    output:
+        "resources/gem/GEM-GGIT-LNG-Terminals-2024-01.xlsx",
+    run:
+        import requests
+        response = requests.get(
+            "https://globalenergymonitor.org/wp-content/uploads/2024/03/GEM-GGIT-LNG-Terminals-2024-01.xlsx",
+            headers={'User-Agent': 'Mozilla/5.0'}
+        )
+        with open(output[0], "wb") as f:
+            f.write(response.content)
 
 
 rule build_distances:

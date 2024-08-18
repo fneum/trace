@@ -5,9 +5,9 @@
 
 rule download_technology_data:
     input:
-        HTTP.remote(
+        storage(
             expand(
-                "raw.githubusercontent.com/PyPSA/technology-data/{version}/outputs/costs_{year}.csv",
+                "https://raw.githubusercontent.com/PyPSA/technology-data/{version}/outputs/costs_{year}.csv",
                 version=config["technology_data"],
                 allow_missing=True,
             ),
