@@ -176,6 +176,7 @@ def apply_modifiers(n):
     mapping = [
         ("generators", "biogenic co2", "OPEX_bioco2"),
         ("generators", "electricity sold", "WTP_excess_power"),
+        ("generators", "heat vent", "WTP_waste_heat"),
     ]
     for components_name, search_string, modifier_name in mapping:
         c = getattr(n, components_name)
