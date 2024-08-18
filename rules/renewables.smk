@@ -149,16 +149,17 @@ rule build_region_shape:
         "Creating region definition (off and onshore) for: {wildcards.region}."
     input:
         gadm="resources/gadm/gadm36_levels.gpkg",
-        eez="resources/World_EEZ_v11_20191118_gpkg/eez_v11.gpkg",
+        eez="resources/World_EEZ_v12_20231025_LR/eez_v12_lowres.gpkg",
     output:
         gpkg="resources/regions/{region}.gpkg",
     params:
         region_members=lambda w: config["regions"][w["region"]],
     log:
         python="logs/build_region_shape/{region}.log",
-        notebook="logs/build_region_shape/{region}.py.ipynb",
-    notebook:
-        "../actions/build_region_shape.py.ipynb"
+    resources:
+        mem_mb=64000,
+    script:
+        "../actions/build_region_shape.py"
 
 
 rule build_cutout:
