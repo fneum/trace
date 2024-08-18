@@ -173,9 +173,16 @@ rule build_cutout:
         era5_year=config["renewables"]["era5_year"],
     log:
         python="logs/build_cutout/{region}.log",
-        notebook="logs/build_cutout/{region}.py.ipynb",
-    notebook:
-        "../actions/build_cutout.py.ipynb"
+    retries: 2
+    resources:
+        mem_mb=32000,
+        runtime="12h",
+        cdsapi_tokens=1,
+        # snakemake --resources cdsapi_tokens=1 to limit to one parallel execution
+        # https://stackoverflow.com/questions/51977436/restrict-number-of-jobs-by-a-rule-in-snakemake
+    threads: 12
+    script:
+        "../actions/build_cutout.py"
 
 
 rule build_potentials_and_profiles:
