@@ -11,7 +11,7 @@ from _helpers import configure_logging
 
 logger = logging.getLogger(__name__)
 
-from pypsa.linopt import get_var, linexpr
+from pypsa.optimization.compat import define_constraints, get_var, linexpr
 
 
 def extra_functionality(n, snapshots):
@@ -48,7 +48,7 @@ def add_battery_constraints(n):
 
     link_p_nom = get_var(n, "Link", "p_nom")
     lhs = linexpr((1, link_p_nom[chargers]), (-1, link_p_nom[dischargers].values))
-    pypsa.linopt.define_constraints(n, lhs, "=", 0, "Link", "charger_ratio")
+    define_constraints(n, lhs, "=", 0, "Link", "charger_ratio")
 
 
 def add_shipping_constraint(n):
@@ -71,7 +71,7 @@ def add_shipping_constraint(n):
     lhs = linexpr(
         (1, link_p_nom[loading_links]), (-1, link_p_nom[unloading_links].values)
     )
-    pypsa.linopt.define_constraints(n, lhs, "=", 0, "Link", "shipping_constraint")
+    define_constraints(n, lhs, "=", 0, "Link", "shipping_constraint")
 
 
 def add_LOHC_shipping_constraints(n):
@@ -96,7 +96,7 @@ def add_LOHC_shipping_constraints(n):
         (1, stores_e_nom[cargo_stores]), (-1.0, stores_e_nom[lohc_stores].values)
     )
 
-    pypsa.linopt.define_constraints(n, lhs, "=", 0, "Store", "lohc_shipping_constraint")
+    define_constraints(n, lhs, "=", 0, "Store", "lohc_shipping_constraint")
 
 
 def add_LOHC_chemical_constraint(n):
@@ -123,7 +123,7 @@ def add_LOHC_chemical_constraint(n):
     ).sum(1)
     lhs += linexpr((-1, generator_p_nom["LOHC chemical (exp)"]))[0]
 
-    pypsa.linopt.define_constraints(
+    define_constraints(
         n, lhs, "<=", 0, "Generator", "lohc_chemical__constraint"
     )
 
@@ -229,19 +229,21 @@ if __name__ == "__main__":
         offset = snakemake.config["time_resolution"]
         network = average_every_nhours(network, offset)
 
+        if solver_name == "gurobi":
+            logging.getLogger("gurobipy").setLevel(logging.CRITICAL)
+
         logger.info(
             f'Solving network using solver options "{op}":\n' f"{solver_options}"
         )
-        logger.info("Starting LOPF.")
-        status, termination_condition = network.lopf(
+        logger.info("Starting optimization.")
+        status, termination_condition = network.optimize(
             snapshots=network.snapshots,
             extra_functionality=extra_functionality,
-            pyomo=False,
             solver_name=solver_name,
             solver_options=solver_options,
-            solver_logfile=snakemake.log["python"],
+            log_fn=snakemake.log["python"],
         )
-        logger.info("End of LOPF.")
+        logger.info("End of optimisation.")
 
         if status == "ok":
             network.export_to_netcdf(snakemake.output["network"])

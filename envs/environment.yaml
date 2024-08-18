@@ -33,7 +33,7 @@ dependencies:
 
   # Modelling framework
 - pycountry
-- pypsa<0.29 # until n.optimize() is used
+- pypsa
 
   # Data retrieval
 - cdsapi>=0.7.0
