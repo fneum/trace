@@ -34,7 +34,7 @@ rule create_network:
         efficiencies="data/efficiencies.csv",
         costs="data/technology-data/outputs/costs_{year}.csv",
         wacc="data/wacc.csv",
-        distances="data/distances.csv",
+        distances="resources/distances.csv",
         shipping_properties="data/shipping.csv",
         network="escs/{esc}",
         additional_components="resources/additional_components.pkl",

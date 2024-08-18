@@ -245,3 +245,14 @@ rule download_gadm:
     run:
         output_folder = Path(output[0]).parent
         shell("unzip {input} -d {output_folder}")
+
+
+rule build_distances:
+    input:
+        lng="resources/gem/GEM-GGIT-LNG-Terminals-2024-01.xlsx",
+    output:
+        "resources/distances.csv",
+    log:
+        python="logs/build_distances.log",
+    script:
+        "../actions/build_distances.py"
