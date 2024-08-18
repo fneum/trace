@@ -30,9 +30,8 @@ rule all_scenario_results:
     threads: 1
     log:
         python="logs/combine_results.log",
-        notebook="logs/combine_results.ipynb",
-    notebook:
-        "../actions/combine_results.py.ipynb"
+    script:
+        "../actions/combine_results.py"
 
 
 rule extract_result:
@@ -60,7 +59,7 @@ rule extract_weighted_generator_timeseries:
     params:
         scenario=lambda w: get_scenario(w["scenario"]),
     log:
-        python="logs/{scenario}/{year}/{esc}/{exporter}-{importer}/extract_weighted_generator_timeseries.ipynb",
+        python="logs/{scenario}/{year}/{esc}/{exporter}-{importer}/extract_weighted_generator_timeseries.log",
     script:
         "../actions/extract_weighted_generator_timeseries.py"
 
@@ -79,6 +78,6 @@ rule combine_all_weighted_generator_timeseries:
         combined_timeseries="results/combined_weighted_generator_timeseries.nc",
     threads: 1
     log:
-        python="logs/combine_all_weighted_generator_timeseries.ipynb",
+        python="logs/combine_all_weighted_generator_timeseries.log",
     script:
         "../actions/combine_all_weighted_generator_timeseries.py"

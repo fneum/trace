@@ -227,9 +227,8 @@ rule combine_atlite_supply:
         supply="resources/supply_{region}.nc",
     log:
         python="logs/combine_atlite_supply/{region}.log",
-        notebook="logs/combine_atlite_supply/{region}.py.ipynb",
-    notebook:
-        "../actions/combine_atlite_supply.py.ipynb"
+    script:
+        "../actions/combine_atlite_supply.py"
 
 
 # Downloading GADM database for country/region shapes which are used to define
