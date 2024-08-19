@@ -313,3 +313,16 @@ rule build_distances:
         python="logs/build_distances.log",
     script:
         "../actions/build_distances.py"
+
+
+rule download_synde:
+    input:
+        storage(
+            "https://zenodo.org/records/6569890/files/resources.zip",
+            keep_local=True,
+        ),
+    output:
+        directory("resources/synde"),
+    run:
+        output_folder = Path(output[0])
+        shell("unzip {input} -d {output_folder}")
