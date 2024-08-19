@@ -10,21 +10,12 @@ remote:
   path: "SCRATCH/projects/import-benefits/trace"
 
 scenarios:
-  high-electrolysis-150:
+  low-electrolysis-75:
     modifiers:
-      CAPEX_electrolysis: 1.5
-  high-electrolysis-125:
+      CAPEX_electrolysis: 0.75
+  low-electrolysis-50:
     modifiers:
-      CAPEX_electrolysis: 1.25
-  high-electrolysis-200:
-    modifiers:
-      CAPEX_electrolysis: 2
-  high-electrolysis-300:
-    modifiers:
-      CAPEX_electrolysis: 3
-  high-dac-125:
-    modifiers:
-      CAPEX_DAC: 1.25
+      CAPEX_electrolysis: 0.5
   high-dac-150:
     modifiers:
       CAPEX_DAC: 1.5
@@ -34,10 +25,10 @@ scenarios:
   high-dac-300:
     modifiers:
       CAPEX_DAC: 3
-  high-wacc:
+  high-wacc-12:
     modifiers:
       wacc: 1.71429 # 12%
-  low-wacc:
+  low-wacc-3:
     modifiers:
       wacc: 0.42857 # 3%
   high-wacc-10:
@@ -52,21 +43,15 @@ scenarios:
   low-wacc-6:
     modifiers:
       wacc: 0.85714 # 5%
-  high-bioco2cost:
+  high-bioco2cost-150:
     modifiers:
       OPEX_bioco2: 1.5 #75 €/MWh
-  high-bioco2cost-60:
+  high-bioco2cost-200:
     modifiers:
-      OPEX_bioco2: 1.2 #60 €/MWh
-  high-bioco2cost-80:
-    modifiers:
-      OPEX_bioco2: 1.6 #60 €/MWh
-  high-bioco2cost-100:
-    modifiers:
-      OPEX_bioco2: 2 #60 €/MWh
+      OPEX_bioco2: 2 # 100 €/MWh
   cavern-h2-storage:
     modifiers:
-      CAPEX_H2storage: 0.05 # 0.05 * 45 €/kWh
+      CAPEX_H2storage: 0.045 # 2.1164 / 47.5247 €/kWh
   excess-power-20:
     modifiers:
       WTP_excess_power: 2 # 20 €/MWh
@@ -79,6 +64,12 @@ scenarios:
   excess-power-50:
     modifiers:
       WTP_excess_power: 5 # 50 €/MWh
+  waste-heat-5:
+    modifiers:
+      WTP_waste_heat: 0.5 # 5 €/MWh
+  waste-heat-20:
+    modifiers:
+      WTP_waste_heat: 2 # 20 €/MWh
   default:   # All scenarios are based on this scenario and may overwrite the here specified parameters
         # WACC scenario assumptions, see "data/wacc.csv"
         # Currently supported: homogeneous, irena, inhomogeneous
@@ -130,6 +121,7 @@ scenarios:
       CAPEX_H2storage: 1           # CAPEX of hydrogen storage
       OPEX_bioco2: 1               # cost of biogenic CO2
       WTP_excess_power: 1          # willingness to pay for excess power 
+      WTP_waste_heat: 1          # willingness to pay for waste heat 
 
 # Weather year for which ERA5 data is used
 renewables:
@@ -137,7 +129,7 @@ renewables:
 
   # Ignore renewable classes below this capacity [MW]
   # when create the supply curves and attaching RES to each network
-  ignore_capacities_below: 5
+  ignore_capacities_below: 100
 
   wind_onshore:
 
@@ -150,9 +142,8 @@ renewables:
     # Copernicus Land Cover
     copernicus:
       # Areas with these landcover codes are considered eligible for the RES technology
-      include_codes: [20, 30, 40, 60, 100, 111, 112, 113, 114, 115, 116, 121, 122, 123, 124, 125, 126 # Open forest, unknown
-      # 200,  # Open sea
-]
+      include_codes: [20, 30, 40, 60, 100, 111, 112, 113, 114, 115, 116, 121, 122, 123, 124, 125, 126] # Open forest, unknown # 200,  # Open sea
+
 
       # A buffer zone with <distance_to_codes> m around the <distancing_codes> land cover
       # codes (types) is considered not eligible for the RES technology
@@ -196,7 +187,7 @@ renewables:
     technical_potential: 3
 
     # Number of quality classes into which RES layout is created based on annual capacity factor
-    number_quality_classes: 50
+    number_quality_classes: 30
 
     # Configuration used by atlite for modelling technology
     atlite:
@@ -270,7 +261,7 @@ renewables:
     technical_potential: 3
 
     # Number of quality classes into which RES layout is created based on annual capacity factor
-    number_quality_classes: 50
+    number_quality_classes: 10
 
     # Configuration used by atlite for modelling technology
     atlite:
@@ -291,7 +282,7 @@ renewables:
     shipping_routes: false
     gebco: false
     technical_potential: 5.1 # Based on ENPRESO 85 W/m^2 and 3% land availability
-    number_quality_classes: 50
+    number_quality_classes: 30
     atlite:
       method: "pv"
       panel: "CSi"
@@ -334,35 +325,304 @@ regions:
   # Regions are identified by their full-name in the database for each level
   # For each level parent levels need to be specified seperated by a "->",
   # e.g. for a region containing Florida (USA) and Canada:
-  # "CA-USFL": ["United States -> Floida", "Canada"]
-  "AR": ["Argentina"]
-  "AU": ["Australia"]
-  "CA": ["Canada"]
-  "CA-East": ["Canada -> Manitoba", "Canada -> Ontario", "Canada -> Québec", "Canada -> Newfoundland and Labrador", "Canada -> New Brunswick", "Canada -> Prince Edward Island", "Canada -> Nova Scotia"]
-  "CL": ["Chile"]
-  "CN": ["China"]
-  "CN-East": ["China -> Heilongjiang", "China -> Nei Mongol", "China -> Jilin", "China -> Liaoning", "China -> Beijing", "China -> Hebei", "China -> Tianjin", "China -> Shanxi", "China -> Shandong", "China -> Shaanxi", "China -> Henan", "China -> Jiangsu", "China -> Anhui", "China -> Shanghai", "China -> Hubei", "China -> Chongqing", "China -> Zhejiang", "China -> Jiangxi", "China -> Hunan", "China -> Guizhou", "China -> Fujian", "China -> Guangxi", "China -> Guangdong", "China -> Hainan"]
-  "CN-West": ["China -> Ningxia Hui", "China -> Yunnan", "China -> Sichuan", "China -> Xizang", "China -> Qinghai", "China -> Gansu", "China -> Xinjiang Uygur"]
-  "DE": ["Germany"]
-  "DK": ["Denmark"]
-  "DZ": ["Algeria"]
-  "EG": ["Egypt"]
-  "ES": ["Spain"]
-  "IS": ["Iceland"]
-  "KZ": ["Kazakhstan"]
-  "LY": ["Libya"]
-  "MA": ["Morocco"]
-  "MA-Xlinks": ["Morocco -> Souss - Massa - Draâ", "Morocco -> Guelmim - Es-Semara", "Morocco -> Laâyoune - Boujdour - Sakia El Hamra"]
-  "NA": ["Namibia"]
-  "OM": ["Oman"]
-  "RU": ["Russia"]
-  "RU-West": ["Russia -> Murmansk", "Russia -> Nenets", "Russia -> Yamal-Nenets", "Russia -> Komi", "Russia -> Karelia", "Russia -> Arkhangel'sk", "Russia -> Khanty-Mansiy", "Russia -> Leningrad", "Russia -> Vologda", "Russia -> City of St. Petersburg", "Russia -> Perm'", "Russia -> Kirov", "Russia -> Sverdlovsk", "Russia -> Tomsk", "Russia -> Kostroma", "Russia -> Novgorod", "Russia -> Yaroslavl'", "Russia -> Tyumen'", "Russia -> Sverdlovsk", "Russia -> Sverdlovsk", "Russia -> Pskov", "Russia -> Udmurt", "Russia -> Tver'", "Russia -> Ivanovo", "Russia -> Mariy-El", "Russia -> Nizhegorod", "Russia -> Omsk", "Russia -> Vladimir", "Russia -> Moscow City", "Russia -> Moskva", "Russia -> Chuvash", "Russia -> Kurgan", "Russia -> Tatarstan", "Russia -> Novosibirsk", "Russia -> Smolensk", "Russia -> Kemerovo", "Russia -> Chelyabinsk", "Russia -> Mordovia", "Russia -> Kaluga", "Russia -> Ryazan'", "Russia -> Bashkortostan", "Russia -> Ul'yanovsk", "Russia -> Tula", "Russia -> Khakass", "Russia -> Samara", "Russia -> Penza", "Russia -> Bryansk", "Russia -> Orel", "Russia -> Tambov", "Russia -> Lipetsk", "Russia -> Altay", "Russia -> Orenburg", "Russia -> Kursk", "Russia -> Tuva", "Russia -> Saratov", "Russia -> Voronezh", "Russia -> Gorno-Altay", "Russia -> Belgorod", "Russia -> Volgograd", "Russia -> Rostov", "Russia -> Astrakhan'", "Russia -> Kalmyk", "Russia -> Krasnodar", "Russia -> Stavropol'", "Russia -> Adygey", "Russia -> Karachay-Cherkess", "Russia -> Kabardin-Balkar", "Russia -> Chechnya", "Russia -> Ingush", "Russia -> North Ossetia", "Russia -> Dagestan"]
-  "SA": ["Saudi Arabia"]
-  "TN": ["Tunisia"]
-  "TR": ["Turkey"]
-  "UA": ["Ukraine"]
-  # "US": ["United States"] # Too big for ECMWF API. Requires https://github.com/PyPSA/atlite/pull/236 
-  "US-East": ["United States -> Maine", "United States -> Vermont", "United States -> New Hampshire", "United States -> Minnesota", "United States -> Massachusetts", "United States -> Michigan", "United States -> New York", "United States -> Rhode Island", "United States -> Wisconsin", "United States -> Connecticut", "United States -> New Jersey", "United States -> Pennsylvania", "United States -> Iowa", "United States -> Ohio", "United States -> Delaware", "United States -> Maryland", "United States -> District of Columbia", "United States -> Indiana", "United States -> Illinois", "United States -> West Virginia", "United States -> Virginia", "United States -> Missouri", "United States -> Kentucky", "United States -> North Carolina", "United States -> Tennessee", "United States -> South Carolina", "United States -> Arkansas", "United States -> Georgia", "United States -> Alabama", "United States -> Mississippi", "United States -> Louisiana", "United States -> Florida"]
+  # "CA-USFL": ["United States -> Florida", "Canada"]
+  AR-South: 
+  - Argentina -> Tierra del Fuego
+  - Argentina -> Santa Cruz
+  - Argentina -> Chubut
+  - Argentina -> Río Negro
+  - Argentina -> Neuquén
+  AR-North:
+  - Argentina -> Formosa
+  - Argentina -> La Pampa
+  - Argentina -> Santa Fe
+  - Argentina -> Córdoba
+  - Argentina -> La Rioja
+  - Argentina -> Catamarca
+  - Argentina -> Misiones
+  - Argentina -> Corrientes
+  - Argentina -> Tucumán
+  - Argentina -> San Luis
+  - Argentina -> Mendoza
+  - Argentina -> Salta
+  - Argentina -> Jujuy
+  - Argentina -> Entre Ríos
+  - Argentina -> Buenos Aires
+  - Argentina -> Chaco
+  - Argentina -> San Juan
+  - Argentina -> Ciudad de Buenos Aires
+  - Argentina -> Santiago del Estero
+  AU-West:
+  - Australia -> Western Australia
+  AU-East:
+  - Australia -> Queensland
+  - Australia -> New South Wales
+  - Australia -> Victoria
+  - Australia -> Tasmania
+  - Australia -> South Australia
+  - Australia -> Australian Capital Territory
+  - Australia -> Northern Territory
+  BR-Northeast:
+  - Brazil -> Bahia
+  - Brazil -> Tocantins
+  - Brazil -> Sergipe
+  - Brazil -> Alagoas
+  - Brazil -> Pernambuco
+  - Brazil -> Paraíba
+  - Brazil -> Rio Grande do Norte
+  - Brazil -> Ceará
+  - Brazil -> Piauí
+  - Brazil -> Maranhão
+  BR-Southeast:
+  - Brazil -> Rio Grande do Sul
+  - Brazil -> Santa Catarina
+  - Brazil -> Paraná
+  - Brazil -> Mato Grosso do Sul
+  - Brazil -> Goiás
+  - Brazil -> Distrito Federal
+  - Brazil -> Minas Gerais
+  - Brazil -> São Paulo
+  - Brazil -> Espírito Santo
+  - Brazil -> Rio de Janeiro
+  CA-East: 
+  - Canada -> Manitoba
+  - Canada -> Ontario
+  - Canada -> Québec
+  - Canada -> Newfoundland and Labrador
+  - Canada -> New Brunswick
+  - Canada -> Prince Edward Island
+  - Canada -> Nova Scotia
+  CL:
+  - Chile
+  CN-Northeast:
+  - China -> Nei Mongol
+  - China -> Heilongjiang
+  - China -> Jilin
+  - China -> Liaoning
+  - China -> Beijing
+  - China -> Hebei
+  - China -> Tianjin
+  - China -> Shanxi
+  - China -> Shandong
+  - China -> Shaanxi
+  - China -> Henan
+  - China -> Jiangsu
+  - China -> Anhui
+  - China -> Shanghai
+  CN-Southeast: 
+  - China -> Hubei
+  - China -> Chongqing
+  - China -> Zhejiang
+  - China -> Jiangxi
+  - China -> Hunan
+  - China -> Guizhou
+  - China -> Fujian
+  - China -> Guangxi
+  - China -> Guangdong
+  - China -> Hainan
+  CN-West: 
+  - China -> Ningxia Hui
+  - China -> Yunnan
+  - China -> Sichuan
+  - China -> Xizang
+  - China -> Qinghai
+  - China -> Gansu
+  - China -> Xinjiang Uygur
+  DZ: 
+  - Algeria
+  EG: 
+  - Egypt
+  KZ: 
+  - Kazakhstan
+  LY: 
+  - Libya
+  MA: 
+  - Morocco
+  EH:
+  - Western Sahara
+  NA: 
+  - Namibia
+  OM: 
+  - Oman
+  SA: 
+  - Saudi Arabia
+  TN: 
+  - Tunisia
+  TR: 
+  - Turkey
+  UA: 
+  - Ukraine
+  US-Northeast:
+  - United States -> Maine
+  - United States -> Vermont
+  - United States -> New Hampshire
+  - United States -> Massachusetts
+  - United States -> Michigan
+  - United States -> New York
+  - United States -> Rhode Island
+  - United States -> Wisconsin
+  - United States -> Connecticut
+  - United States -> New Jersey
+  - United States -> Pennsylvania
+  - United States -> Ohio
+  - United States -> Delaware
+  - United States -> Maryland
+  - United States -> District of Columbia
+  - United States -> Indiana
+  - United States -> Illinois
+  - United States -> West Virginia
+  - United States -> Virginia
+  - United States -> Kentucky
+  - United States -> Iowa
+  - United States -> Minnesota
+  - United States -> Missouri
+  US-Southeast:
+  - United States -> North Carolina
+  - United States -> Florida
+  - United States -> Tennessee
+  - United States -> South Carolina
+  - United States -> Georgia
+  - United States -> Alabama
+  - United States -> Mississippi
+  US-Northwest:
+  - United States -> Washington
+  - United States -> Oregon
+  - United States -> Idaho
+  - United States -> Montana
+  - United States -> Wyoming
+  - United States -> North Dakota
+  - United States -> South Dakota
+  - United States -> Nebraska
+  US-South:
+  - United States -> Kansas
+  - United States -> Texas
+  - United States -> Arkansas
+  - United States -> Oklahoma
+  - United States -> Louisiana
+  US-Southwest:
+  - United States -> Colorado
+  - United States -> New Mexico
+  - United States -> California
+  - United States -> Nevada
+  - United States -> Arizona
+  - United States -> Utah
+  US-Alaska:
+  - United States -> Alaska
+  MX:
+  - Mexico
+  GE:
+  - Georgia
+  AZ:
+  - Azerbaijan
+  QA:
+  - Qatar
+  AE:
+  - United Arab Emirates
+  KW:
+  - Kuwait
+  TM:
+  - Turkmenistan
+  UZ:
+  - Uzbekistan
+  MN:
+  - Mongolia
+  PK:
+  - Pakistan
+  VN:
+  - Vietnam
+  MM:
+  - Myanmar
+  TH:
+  - Thailand
+  LK:
+  - Sri Lanka
+  ZA:
+  - South Africa
+  KE:
+  - Kenya
+  TZ:
+  - Tanzania
+  NG:
+  - Nigeria
+  AO:
+  - Angola
+  ET:
+  - Ethiopia
+  MZ:
+  - Mozambique
+  ER:
+  - Eritrea
+  MR:
+  - Mauritania
+  SN:
+  - Senegal
+  UY:
+  - Uruguay
+  CO:
+  - Colombia
+  PE:
+  - Peru
+  IN-Northwest:
+  - India -> Gujarat
+  - India -> Rajasthan
+  - India -> Madhya Pradesh
+  - India -> Uttar Pradesh
+  - India -> NCT of Delhi
+  - India -> Haryana
+  - India -> Punjab
+  - India -> Uttarakhand
+  - India -> Himachal Pradesh
+  - India -> Jammu and Kashmir
+  IN-South:
+  - India -> Odisha
+  - India -> Chhattisgarh
+  - India -> Maharashtra
+  - India -> Andhra Pradesh
+  - India -> Telangana
+  - India -> Karnataka
+  - India -> Goa
+  - India -> Tamil Nadu
+  - India -> Kerala
+  IN-East:
+  - India -> Bihar
+  - India -> Jharkhand
+  - India -> West Bengal
+  - India -> Sikkim
+  - India -> Assam
+  - India -> Meghalaya
+  - India -> Arunachal Pradesh
+  - India -> Nagaland
+  - India -> Manipur
+  - India -> Tripura
+  - India -> Mizoram
+  IS:
+  - Iceland
+  IL:
+  - Israel
+  SD:
+  - Sudan
+  SY:
+  - Syria
+  YE:
+  - Yemen
+  JO:
+  - Jordan
+  IR:
+  - Iran
+  IQ:
+  - Iraq
+  AF:
+  - Afghanistan
+  SO:
+  - Somalia
+  MG:
+  - Madagascar
+  DJ:
+  - Djibouti
+  BO:
+  - Bolivia
+  VE:
+  - Venezuela
 
 detour_factors:
   transmission_line: 1.2
@@ -373,13 +633,16 @@ detour_factors:
 # May be either a branch (like e.g. "master") or a full-commit hash
 # see: https://github.com/PyPSA/technology-data
 technology_data: "v0.9.1"
+
+time_resolution: "3h"
+
 demand_factor: 2 # factor applied projected electricity demand, e.g. to account for electrification of other sectors
 
 solver:
   pypsa-eur:              # based on: https://github.com/PyPSA/pypsa-eur/blob/master/config.default.yaml (works well)
     name: gurobi
-    Presolve: 1           # Conservative presolving; Aggressive consumes too much memory
-    PreSparsify: 2        # Force sparsify reduction in an attempt to reduce memory consumption
+    # Presolve: 1           # Conservative presolving; Aggressive consumes too much memory
+    # PreSparsify: 2        # Force sparsify reduction in an attempt to reduce memory consumption
     method: 2             # barrier
     crossover: 0
     BarConvTol: 1.e-4
