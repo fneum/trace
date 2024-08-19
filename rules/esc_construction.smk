@@ -85,7 +85,7 @@ rule attach_supply:
         "Attaching RES supply ('as') to network."
     input:
         supply="resources/supply_{from}.nc",
-        demand="data/overwrite/demand.csv",
+        demand="resources/demand.csv",
         costs="data/technology-data/outputs/costs_{year}.csv",
         wacc="data/wacc.csv",
         efficiencies="data/efficiencies.csv",
