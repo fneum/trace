@@ -213,9 +213,12 @@ forbidden_combinations = {
 # In[30]:
 
 
+# years = [2030, 2050]
 years = [2030]
-scenarios = []
-for year, esc, exporter in product(years, escs, exporters):
+# scenarios = ["default", "low-electrolysis-50", "cavern-h2-storage"]
+scenarios = ["default"]
+scenario_list = []
+for year, scenario, esc, exporter in product(years, scenarios, escs, exporters):
 
     if "shipping" in esc:
         forbidden_esc_exporters = forbidden["shipping"]
@@ -232,15 +235,15 @@ for year, esc, exporter in product(years, escs, exporters):
         if exporter in forbidden_combinations.get(esc_importer, []):
             continue
         
-        scenarios.append(pd.Series({
+        scenario_list.append(pd.Series({
             "scenario": "default",
             "year": year,
             "esc": esc,
             "exporter": exporter,
             "importer": esc_importer,
         }))
-scenarios = pd.concat(scenarios, axis=1).T
+scenario_list = pd.concat(scenario_list, axis=1).T
 extras = pd.read_csv("scenarios/extra.csv")
-scenarios = pd.concat([scenarios, extras], axis=0, ignore_index=True)
-scenarios.to_csv("scenarios/default.csv", index=False)
+scenario_list = pd.concat([scenario_list, extras], axis=0, ignore_index=True)
+scenario_list.to_csv("scenarios/default.csv", index=False)
 
