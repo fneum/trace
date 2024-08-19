@@ -130,6 +130,7 @@ if __name__ == "__main__":
         "EUS": (37.18, 14.53, "Italy"),
         "EUSE": (41.09, 25.46, "Greece"),
         "EUE": (48.54, 22.14, "Slovakia"),
+        "EUNW": (58.28, -4.43, "Scotland"),
     }
 
     origins = {
@@ -165,7 +166,6 @@ if __name__ == "__main__":
         "IR": (32.06, 54.29),
         "IQ": (33.05, 42.77),
         "AF": (33.86, 64.88),
-
     }
 
     crowfly_distances = []
