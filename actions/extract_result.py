@@ -97,11 +97,11 @@ elec = pd.concat(
         (weights @ n.links_t["p1"]
         .filter(like="csp-tower power block", axis="columns")
         .abs()),
-        (weights @ n.generators_t["p"].filter(regex="solar-utility|wind", axis="columns"),
+        (weights @ n.generators_t["p"].filter(regex="solar-utility|wind", axis="columns")),
     ]
 )
 
-elec = elec.groupby(lambda x: re.sub("\s\d+\s?", "", x)).sum()
+elec = elec.groupby(lambda x: re.sub("\\s\\d+\\s?", "", x)).sum()
 
 # Produced electricity
 l.append(
@@ -183,7 +183,7 @@ t = (
 )
 t = t.groupby(
     lambda x: re.sub(
-        "\sconvoy \d+ .*", "", x.replace(" (exp)", "").replace(" (imp)", "")
+        "\\sconvoy \\d+ .*", "", x.replace(" (exp)", "").replace(" (imp)", "")
     )
 ).sum()
 
