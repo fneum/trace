@@ -126,10 +126,10 @@ def do_main():
 
             logging.info(f"Excluding {len(wdpa)} PA polygon areas.")
             # temporary file needed for parallelization
-            with NamedTemporaryFile(suffix=".geojson", delete=False) as f:
+            with NamedTemporaryFile(suffix=".gpkg", delete=False) as f:
                 plg_tmp_fn = f.name
             if not wdpa.empty:
-                wdpa[["geometry"]].to_file(plg_tmp_fn)
+                wdpa[["geometry"]].to_file(plg_tmp_fn, driver="GPKG")
                 while not os.path.exists(plg_tmp_fn):
                     time.sleep(1)
                 excluder.add_geometry(plg_tmp_fn)
@@ -165,10 +165,10 @@ def do_main():
 
             logging.info(f"Excluding {len(wdpa)} PA point areas.")
             # temporary file needed for parallelization
-            with NamedTemporaryFile(suffix=".geojson", delete=False) as f:
+            with NamedTemporaryFile(suffix=".gpkg", delete=False) as f:
                 pts_tmp_fn = f.name
             if not wdpa.empty:
-                wdpa[["geometry"]].to_file(pts_tmp_fn)
+                wdpa[["geometry"]].to_file(pts_tmp_fn, driver="GPKG")
                 while not os.path.exists(pts_tmp_fn):
                     time.sleep(1)
                 excluder.add_geometry(pts_tmp_fn)
@@ -198,10 +198,10 @@ def do_main():
             wdpa_marine = wdpa_marine.to_crs(crs_ea)
 
             logging.info(f"Excluding {len(wdpa_marine)} MPA polygon areas.")
-            with NamedTemporaryFile(suffix=".geojson", delete=False) as f:
+            with NamedTemporaryFile(suffix=".gpkg", delete=False) as f:
                 pts_marine_tmp_fn = f.name
-            if not wdpa.empty:
-                wdpa_marine["geometry"].to_file(pts_marine_tmp_fn)
+            if not wdpa_marine.empty:
+                wdpa_marine["geometry"].to_file(pts_marine_tmp_fn, driver="GPKG")
                 while not os.path.exists(pts_marine_tmp_fn):
                     time.sleep(1)
                 excluder.add_geometry(pts_marine_tmp_fn)
@@ -242,10 +242,10 @@ def do_main():
             )
 
             logging.info(f"Excluding {len(wdpa_marine)} MPA point areas.")
-            with NamedTemporaryFile(suffix=".geojson", delete=False) as f:
+            with NamedTemporaryFile(suffix=".gpkg", delete=False) as f:
                 plg_marine_tmp_fn = f.name
-            if not wdpa.empty:
-                wdpa_marine["geometry"].to_file(plg_marine_tmp_fn)
+            if not wdpa_marine.empty:
+                wdpa_marine["geometry"].to_file(plg_marine_tmp_fn, driver="GPKG")
                 while not os.path.exists(plg_marine_tmp_fn):
                     time.sleep(1)
                 excluder.add_geometry(plg_marine_tmp_fn)
@@ -326,9 +326,9 @@ def do_main():
     if technology_details["max_shore_distance"]:
         logger.info("Adding 'max_offshore_distance' constraint...")
         # Include only offshore/eez areas within the configured shore distance
-        with NamedTemporaryFile(suffix=".geojson", delete=False) as f:
+        with NamedTemporaryFile(suffix=".gpkg", delete=False) as f:
             onshore_fn = f.name
-        region.loc[["onshore"]].to_file(onshore_fn)
+        region.loc[["onshore"]].to_file(onshore_fn, driver="GPKG")
         while not os.path.exists(onshore_fn):
             time.sleep(1)
         excluder.add_geometry(
