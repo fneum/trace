@@ -12,7 +12,6 @@ import numpy as np
 import pandas as pd
 import pypsa
 from _helpers import (
-    calculate_annual_investment,
     calculate_annuity,
     configure_logging,
     extract_technology,
@@ -33,7 +32,7 @@ def _do_units_match(unit1, unit2):
         import re
 
         # remove optional Si prefixes 'M', 'k' and per hour ('/h', 'h') indicators
-        u = re.match("[Mk]?(.+?)\/?h?$", re.split("_|-", u)[0]).groups()[0]
+        u = re.match("[Mk]?(.+?)\\/?h?$", re.split("_|-", u)[0]).groups()[0]
 
         # Specific indicators to remove, a bit hacky and may cause problems they do not match. Hotfix.
         for p in ["CO2", "/km"]:
@@ -62,7 +61,7 @@ def create_network():
 
     # Equally weighted snapshots, year defined via config
     year = int(snakemake.params["era_year"])
-    snapshots = pd.date_range(str(year), str(year + 1), freq="H", inclusive="left")
+    snapshots = pd.date_range(str(year), str(year + 1), freq="h", inclusive="left")
     network.set_snapshots(snapshots)
 
     return network
@@ -354,18 +353,18 @@ def scale_transportation_with_distance(
             "detour_factor_key": "transmission_line",
         },
         "pipeline": {
-            "name_pattern": "(H2|CH4) \(g\) pipeline$",
+            "name_pattern": "(H2|CH4) \\(g\\) pipeline$",
             "distance_type": "as-the-crow-flies",
             "reduce_by_distance_type": "as-the-hake-swims",
             "detour_factor_key": "pipeline",
         },
         "submarine pipeline": {
-            "name_pattern": "(H2|CH4) \(g\) submarine pipeline$",
+            "name_pattern": "(H2|CH4) \\(g\\) submarine pipeline$",
             "distance_type": "as-the-hake-swims",
             "detour_factor_key": "pipeline",
         },
         "pipeline compressor": {
-            "name_pattern": "^(H2|CH4) \(g\) pipeline compressor(\s\(exp|imp\))?",
+            "name_pattern": "^(H2|CH4) \\(g\\) pipeline compressor(\\s\\(exp|imp\\))?",
             "distance_type": "as-the-crow-flies",
             "detour_factor_key": "pipeline",
         },

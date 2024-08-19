@@ -63,7 +63,7 @@ if __name__ == "__main__":
         logger.info("Imports are not buffered.")
     else:
         freqs = {
-            "annually": "Y",
+            "annually": "YE",
             "quaterly": "Q",
             "monthly": "M",
             "weekly": "W",

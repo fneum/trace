@@ -105,13 +105,13 @@ def add_LOHC_chemical_constraint(n):
 
     loaded_stores = n.stores.filter(like="LOHC unloaded", axis=0).index.union(
         n.stores.filter(
-            regex="LOHC transport ship convoy \d+ cargo \(exp\)", axis=0
+            regex="LOHC transport ship convoy \\d+ cargo \\(exp\\)", axis=0
         ).index
     )
 
     unloaded_stores = n.stores.filter(like="LOHC loaded", axis=0).index.union(
         n.stores.filter(
-            regex="LOHC transport ship convoy \d+ cargo LOHC \(used\)", axis=0
+            regex="LOHC transport ship convoy \\d+ cargo LOHC \\(used\\)", axis=0
         ).index
     )
 
