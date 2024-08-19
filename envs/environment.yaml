@@ -45,7 +45,7 @@ dependencies:
 - bottleneck
 
   # Workflow management
-- snakemake>=8.5
+- snakemake>=8.5,<8.17 # until https://github.com/snakemake/snakemake/issues/3030 resolved
 - snakefmt
 - notebook
 - nbconvert
