@@ -100,7 +100,16 @@ $ tree -L 3
 │   └── solving.smk
 └── Snakefile   # Snakemake file to combine all workflow files into the complete workflow
 ```
-    
+
+## Rulegraph
+
+![rulegraph](rulegraph.png)
+
+
+>[!note]
+> Created using command:
+> `snakemake -j1 all_scenario_results --rulegraph -F | sed -n "/digraph/,/}/p" |  dot -Tpng -o rulegraph.png`
+
 ## Solving a scenario
 
 Solving a scenario (i.e. set of assumptions like e.g. WACC, domestic demand, exporting/importing countries) use the snakemake
