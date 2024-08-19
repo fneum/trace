@@ -70,10 +70,10 @@ if __name__ == "__main__":
     member_geometries["country"] = member_geometries["NAME_0"]
 
     if snakemake.wildcards.region == "US-Alaska":
-        bbox = (-179.5,   50,  -125,   73)
+        bbox = (-179.5, 50, -125, 73)
         member_geometries = member_geometries.clip(bbox)
     elif snakemake.wildcards.region == "BR-Southeast":
-        bbox = (-53.54768753, -33.74708176, -28.84694481, 5.2648778)
+        bbox = (-54 -34, -28, 6)
         member_geometries = member_geometries.clip(bbox)
 
     # Read EEZs for potential offshore locations and
