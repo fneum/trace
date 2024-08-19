@@ -30,7 +30,7 @@ def add_battery_constraints(n):
     Assumed battery inverter is bidirectional.
     Enforce same capacity for charging/discharging link.
 
-    From pypsa-eur-sec. (2020-12-14)
+    From pypsa-eur-sec. (2024-08-19)
     """
 
     chargers = n.links.query(
@@ -46,9 +46,13 @@ def add_battery_constraints(n):
         engine="python",
     ).index
 
-    link_p_nom = get_var(n, "Link", "p_nom")
-    lhs = linexpr((1, link_p_nom[chargers]), (-1, link_p_nom[dischargers].values))
-    define_constraints(n, lhs, "=", 0, "Link", "charger_ratio")
+    eff = n.links.efficiency[dischargers].values
+    lhs = (
+        n.model["Link-p_nom"].loc[chargers]
+        - n.model["Link-p_nom"].loc[dischargers] * eff
+    )
+
+    n.model.add_constraints(lhs == 0, name="Link-charger_ratio")
 
 
 def add_shipping_constraint(n):
@@ -59,19 +63,20 @@ def add_shipping_constraint(n):
     """
 
     loading_links = network.links.loc[
-        (network.links.index.str.contains("\d+\sloading", regex=True))
+        (network.links.index.str.contains("\\d+\\sloading", regex=True))
         & (network.links["bus0"] == "berth (exp)")
     ].index
     unloading_links = network.links.loc[
-        (network.links.index.str.contains("\d+\sunloading", regex=True))
+        (network.links.index.str.contains("\\d+\\sunloading", regex=True))
         & (network.links["bus1"] == "berth (imp)")
     ].index
 
-    link_p_nom = get_var(n, "Link", "p_nom")
-    lhs = linexpr(
-        (1, link_p_nom[loading_links]), (-1, link_p_nom[unloading_links].values)
+    lhs = (
+        n.model["Link-p_nom"].loc[loading_links]
+        - n.model["Link-p_nom"].loc[unloading_links]
     )
-    define_constraints(n, lhs, "=", 0, "Link", "shipping_constraint")
+
+    n.model.add_constraints(lhs == 0, name="Link-shipping_constraint")
 
 
 def add_LOHC_shipping_constraints(n):
