@@ -372,7 +372,7 @@ detour_factors:
 # Which technology-data version to use for cost assumptions
 # May be either a branch (like e.g. "master") or a full-commit hash
 # see: https://github.com/PyPSA/technology-data
-technology_data: "v0.6.2"
+demand_factor: 2 # factor applied projected electricity demand, e.g. to account for electrification of other sectors
 
 solver:
   pypsa-eur:              # based on: https://github.com/PyPSA/pypsa-eur/blob/master/config.default.yaml (works well)

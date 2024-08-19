@@ -323,6 +323,24 @@ rule download_synde:
         ),
     output:
         directory("resources/synde"),
+        expand(
+            "resources/synde/resources/ssp2-2.6/2050/era5_2013/{region}.csv",
+            region=["Africa", "Asia", "Europe", "SouthAmerica"]
+        ),
     run:
         output_folder = Path(output[0])
         shell("unzip {input} -d {output_folder}")
+
+
+rule build_demand:
+    input:
+        synde=expand(
+            "resources/synde/resources/ssp2-2.6/2050/era5_2013/{region}.csv",
+            region=["Africa", "Asia", "Europe", "SouthAmerica"]
+        ),
+    output:
+        "resources/demand.csv",
+    log:
+        python="logs/build_demand.log",
+    script:
+        "../actions/build_demand.py"
