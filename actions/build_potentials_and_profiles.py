@@ -198,8 +198,13 @@ def do_main():
             wdpa_marine = wdpa_marine.to_crs(crs_ea)
 
             logging.info(f"Excluding {len(wdpa_marine)} MPA polygon areas.")
-            if not wdpa_marine.empty:
-                excluder.add_geometry(wdpa_marine["geometry"])
+            with NamedTemporaryFile(suffix=".geojson", delete=False) as f:
+                pts_marine_tmp_fn = f.name
+            if not wdpa.empty:
+                wdpa_marine["geometry"].to_file(pts_marine_tmp_fn)
+                while not os.path.exists(pts_marine_tmp_fn):
+                    time.sleep(1)
+                excluder.add_geometry(pts_marine_tmp_fn)
 
         # Points are assumed to be the center of an protected area
         # A circular area around this assumed center with the reported
@@ -237,8 +242,13 @@ def do_main():
             )
 
             logging.info(f"Excluding {len(wdpa_marine)} MPA point areas.")
-            if not wdpa_marine.empty:
-                excluder.add_geometry(wdpa_marine["geometry"])
+            with NamedTemporaryFile(suffix=".geojson", delete=False) as f:
+                plg_marine_tmp_fn = f.name
+            if not wdpa.empty:
+                wdpa_marine["geometry"].to_file(plg_marine_tmp_fn)
+                while not os.path.exists(plg_marine_tmp_fn):
+                    time.sleep(1)
+                excluder.add_geometry(plg_marine_tmp_fn)
 
     if technology_details["shipping_routes"]:
         logger.info("Adding shipping route density information...")
@@ -316,11 +326,27 @@ def do_main():
     if technology_details["max_shore_distance"]:
         logger.info("Adding 'max_offshore_distance' constraint...")
         # Include only offshore/eez areas within the configured shore distance
+        with NamedTemporaryFile(suffix=".geojson", delete=False) as f:
+            onshore_fn = f.name
+        region.loc[["onshore"]].to_file(onshore_fn)
+        while not os.path.exists(onshore_fn):
+            time.sleep(1)
         excluder.add_geometry(
-            region.loc[["onshore"]],
+            onshore_fn,
             buffer=technology_details["max_shore_distance"],
             invert=True,
         )
+
+    ## Determine eligible/excluded areas on cutout raster (grid cell level)
+    logger.info("Calculating eligible RES build areas...")
+    availability = cutout.availabilitymatrix(
+        build_region, excluder, nprocesses=nprocesses, disable_progressbar=True
+    )
+    availability = availability.rename("Grid cell share available for RES")
+    availability.attrs["units"] = "p.u."
+
+    # Combine all indices from build_region into one availability
+    availability = availability.sum(dim="index")
 
     logger.info("Determining eligible areas on exclude raster resolution...")
     # Determine eligible/excluded areas on exclude raster (100m)
@@ -328,8 +354,8 @@ def do_main():
         build_region["geometry"], excluder
     )
 
-    # atlite v0.2.8: masked is now boolean; convert to np.float for compatibility with workflow
-    masked = masked.astype(np.float)
+    # atlite v0.2.8: masked is now boolean; convert to np.float64 for compatibility with workflow
+    masked = masked.astype(np.float64)
 
     eligible_share = (
         masked.sum() * excluder.res**2 / build_region.geometry.union_all().area
@@ -364,17 +390,6 @@ def do_main():
     ax.set_xlabel("Longitude [km]")
     ax.set_ylabel("Latitude [km]")
     fig.savefig(snakemake.output["area_mask"])
-
-    ## Determine eligible/excluded areas on cutout raster (grid cell level)
-    logger.info("Calculating eligible RES build areas...")
-    availability = cutout.availabilitymatrix(
-        build_region, excluder, nprocesses=nprocesses, disable_progressbar=True
-    )
-    availability = availability.rename("Grid cell share available for RES")
-    availability.attrs["units"] = "p.u."
-
-    # Combine all indices from build_region into one availability
-    availability = availability.sum(dim="index")
 
     # DataArray representing the area of each cutout grid cell
     logger.info("Calculating cutout areas and installable potentials...")
