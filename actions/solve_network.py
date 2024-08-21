@@ -259,10 +259,10 @@ if __name__ == "__main__":
         )
         logger.info("End of optimisation.")
 
-        if status == "ok":
+        if status == "ok" and termination_condition == "optimal":
             network.export_to_netcdf(snakemake.output["network"])
             break
-        elif status == "warning" and termination_condition == "suboptimal":
+        elif status == "ok" and termination_condition == "suboptimal":
             logger.info(
                 "Suboptimal optimisation result. "
                 'Saving as "_suboptimal.nc in case you want to use it.'
