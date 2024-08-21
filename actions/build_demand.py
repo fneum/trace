@@ -36,6 +36,9 @@ if __name__ == "__main__":
         "AF": 16748,
         "SO": 4897,
         "EH": 1925,
+        "AE": 225800,
+        "QA": 64661,
+        "KW": 102427,
     })
     df = substitute_values.combine_first(df)
     subregion_shares = {
