@@ -64,6 +64,7 @@ forbidden = {
         "UZ",
         "MN",
         "AF",
+        "CN-West",
     ],
     "pipeline-cable": [
         "AR-South",
