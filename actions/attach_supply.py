@@ -210,7 +210,7 @@ if __name__ == "__main__":
     _ds_reserved["cumulative generation"] -= _ds_remaining["annual generation"]
 
     # Remove the original class/technology entry and add the splitted ones
-    df = df.drop(idx)
+    df = df.drop(idx[0])
     df = pd.concat(
         [
             df,
