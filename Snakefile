@@ -50,6 +50,7 @@ rule sync:
     shell:
         """
         rsync -uvarh --ignore-missing-args --files-from=.sync-send . {params.cluster}
+        rsync -uvarh --no-g --exclude-from=.sync-receive-ignore {params.cluster}/figures . || echo "No resources directory, skipping rsync"
         rsync -uvarh --no-g --exclude-from=.sync-receive-ignore {params.cluster}/resources . || echo "No resources directory, skipping rsync"
         rsync -uvarh --no-g --exclude-from=.sync-receive-ignore {params.cluster}/results . || echo "No results directory, skipping rsync"
         rsync -uvarh --no-g --exclude-from=.sync-receive-ignore {params.cluster}/logs . || echo "No logs directory, skipping rsync"
