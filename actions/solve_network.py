@@ -150,6 +150,15 @@ def clean_network(n):
             # should help the solver to find the optimum
             components.loc[idx, p] *= 1 + np.random.randint(100) / 1e3
 
+    # clip very small values in time series
+    for df in (
+        n.generators_t.p_max_pu,
+        n.generators_t.p_min_pu,
+        n.links_t.p_max_pu,
+        n.links_t.p_min_pu,
+    ):
+        df.where(df > 0.01, other=0.0, inplace=True)
+
     n.consistency_check()
 
     return n
