@@ -34,7 +34,7 @@ rule solve_network:
     params:
         scenario=lambda w: get_scenario(w["scenario"]),
     resources:
-        mem_mb=lambda wildcards, attempt: attempt * 10000,
+        mem_mb=lambda w, attempt: attempt * 8000,
     log:
         python="logs/{scenario}/{year}/{esc}/{from}-{to}/solve_network.log",
     script:

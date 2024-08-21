@@ -197,7 +197,9 @@ rule build_region_shape:
     log:
         python="logs/build_region_shape/{region}.log",
     resources:
-        mem_mb=64000,
+        mem_mb=lambda wc, attempt: 32000 * 2 ** (attempt - 1),
+    retries:
+        2
     script:
         "../actions/build_region_shape.py"
 
@@ -216,11 +218,11 @@ rule build_cutout:
     retries: 2
     resources:
         mem_mb=32000,
-        runtime="12h",
+        runtime="6h",
         cdsapi_tokens=1,
         # snakemake --resources cdsapi_tokens=1 to limit to one parallel execution
         # https://stackoverflow.com/questions/51977436/restrict-number-of-jobs-by-a-rule-in-snakemake
-    threads: 12
+    threads: 8
     script:
         "../actions/build_cutout.py"
 
@@ -248,7 +250,8 @@ rule build_potentials_and_profiles:
         technology="(pvplant|wind_onshore|wind_offshore|csp_tower)",
     threads: 8
     resources:
-        mem_mb=24000,
+        mem_mb=lambda wc, attempt: 32000 * 2 ** (attempt - 1),
+    retries: 2
     log:
         python="logs/build_potentials_and_profiles/{region}_{technology}.log",
     benchmark:
