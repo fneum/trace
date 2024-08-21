@@ -129,7 +129,7 @@ renewables:
 
   # Ignore renewable classes below this capacity [MW]
   # when create the supply curves and attaching RES to each network
-  ignore_capacities_below: 100
+  ignore_capacities_below: 30
 
   wind_onshore:
 
