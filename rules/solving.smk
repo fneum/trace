@@ -20,6 +20,10 @@ rule solve_scenario:
         networks=all_solved_networks,
 
 
+def get_attempt(wildcards, attempt):
+    return attempt
+
+
 rule solve_network:
     input:
         network=(
@@ -35,6 +39,8 @@ rule solve_network:
         scenario=lambda w: get_scenario(w["scenario"]),
     resources:
         mem_mb=lambda w, attempt: attempt * 8000,
+        attempt=get_attempt,
+    retries: 4
     log:
         python="logs/{scenario}/{year}/{esc}/{from}-{to}/solve_network.log",
     script:

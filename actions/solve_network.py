@@ -240,6 +240,15 @@ if __name__ == "__main__":
         network = apply_modifiers(network)
         network = clean_network(network)
 
+        attempt = snakemake.resources.attempt
+        if attempt > 1:
+            factor = 2 ** (1 - attempt)
+            logger.info(
+                f"Attempt {attempt}: Reducing demand to {factor*100} % "
+                "as the country might have too low potentials to cover the full export load."
+            )
+            network.loads.p_set *= factor
+
         offset = snakemake.config["time_resolution"]
         network = average_every_nhours(network, offset)
 
