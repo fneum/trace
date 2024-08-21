@@ -181,8 +181,12 @@ if __name__ == "__main__":
     df.loc[df["cumulative generation"] <= demand, "reserved share"] = 1
 
     # Supply class/technology which can satisfy the remaining demand without being fully consumed
-    idx = df.loc[df["reserved share"].isna()].index[0]
-    _ds = df.loc[idx].copy()
+    idx = df.loc[df["reserved share"].isna()].index
+    if idx.empty:
+        logger.error(
+            "Insufficient renewable energy potential to cover domestic demand."
+        )
+    _ds = df.loc[idx[0]].copy()
 
     # Before this technology/class
     residual_demand = demand - (_ds["cumulative generation"] - _ds["annual generation"])
