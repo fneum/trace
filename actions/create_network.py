@@ -819,6 +819,19 @@ def add_shipping(n):
     return n
 
 
+def attach_load_shedding(n):
+    network.add(
+        "Generator",
+        "load shedding",
+        bus="electricity (exp)",
+        carrier="load-shedding",
+        marginal_cost=2000,
+        p_nom=10000,
+    )
+
+    return n
+
+
 # In[ ]:
 
 
@@ -831,6 +844,9 @@ if __name__ == "__main__":
     network = create_network()
     network = attach_efficiencies(network)
     network = attach_costs(network)
+
+    if snakemake.config["load_shedding"]:
+        network = attach_load_shedding(network)
 
     network = scale_transportation_with_distance(network)
 

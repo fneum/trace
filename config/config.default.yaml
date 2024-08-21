@@ -636,7 +636,7 @@ technology_data: "v0.9.1"
 
 time_resolution: "3h"
 
-demand_factor: 2 # factor applied projected electricity demand, e.g. to account for electrification of other sectors
+load_shedding: false
 
 solver:
   pypsa-eur:              # based on: https://github.com/PyPSA/pypsa-eur/blob/master/config.default.yaml (works well)
