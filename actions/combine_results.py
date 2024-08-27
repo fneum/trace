@@ -50,6 +50,7 @@ if __name__ == "__main__":
     )
 
     df.to_csv(
-        snakemake.output["results"], sep=";", quotechar='"', quoting=csv.QUOTE_ALL
+        snakemake.output["results_csv"], sep=";", quotechar='"', quoting=csv.QUOTE_ALL
     )
 
+    df.to_parquet(snakemake.output["results_parquet"], compression="snappy")

@@ -26,7 +26,8 @@ rule all_scenario_results:
             instances=custom_instance_pattern(scenarios),
         ),
     output:
-        results="results/results.csv",
+        results_csv="results/results.csv",
+        results_parquet="results/results.parquet",
     threads: 1
     log:
         python="logs/combine_results.log",
