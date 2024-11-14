@@ -72,9 +72,9 @@ if __name__ == "__main__":
     if snakemake.wildcards.region == "US-Alaska":
         bbox = (-179.5, 50, -125, 73)
         member_geometries = member_geometries.clip(bbox)
-    elif snakemake.wildcards.region == "BR-Southeast":
-        bbox = (-54 -34, -28, 6)
-        member_geometries = member_geometries.clip(bbox)
+    # elif snakemake.wildcards.region == "BR-Southeast":
+    #     bbox = (-54 -34, -28, 6)
+    #     member_geometries = member_geometries.clip(bbox)
 
     # Read EEZs for potential offshore locations and
     # add EEZs for all involved countries
@@ -138,28 +138,30 @@ if __name__ == "__main__":
     # Use buffer to prevent small gaps to overeagerly exclude an offshore region
     eez = eez[eez.geometry.intersects(mgb.buffer(100).union_all())]
 
-    logger.info(
-        f"{len(eez)} offshore region(s) found for region '{snakemake.wildcards.region}'."
-    )
-    if len(eez) > 0:
-        ## Select only offshore locations within <offshore_proximity> m[eters] of
-        ## an onshore location which is part of the region
-        ## (=offshore locations accessible from the region under consideration)
-        # offshore = eez.intersection(mgb.buffer(snakemake.params.offshore_proximity).union_all())
+    # logger.info(
+    #     f"{len(eez)} offshore region(s) found for region '{snakemake.wildcards.region}'."
+    # )
+    # if len(eez) > 0:
+    #     ## Select only offshore locations within <offshore_proximity> m[eters] of
+    #     ## an onshore location which is part of the region
+    #     ## (=offshore locations accessible from the region under consideration)
+    #     # offshore = eez.intersection(mgb.buffer(snakemake.params.offshore_proximity).union_all())
 
-        # Combine offshore region into MultiPolygon
-        offshore = eez.union_all()
-        offshore = offshore.simplify(0)
-        offshore = shpval.make_valid(offshore)
+    #     # Combine offshore region into MultiPolygon
+    #     offshore = eez.union_all()
+    #     offshore = offshore.simplify(0)
+    #     offshore = shpval.make_valid(offshore)
 
-        # clip offshore region to area within 200NM of onshore region if region
-        # consists of multiple subregions
-        if len(snakemake.params.region_members) > 1:
-            eez_range = 370400  # 200 nautical miles in meters
-            offshore = onshore.simplify(5e3).buffer(eez_range).intersection(offshore)
+    #     # clip offshore region to area within 200NM of onshore region if region
+    #     # consists of multiple subregions
+    #     if len(snakemake.params.region_members) > 1:
+    #         eez_range = 370400  # 200 nautical miles in meters
+    #         offshore = onshore.simplify(5e3).buffer(eez_range).intersection(offshore)
 
-    else:
-        offshore = None
+    # else:
+    #     offshore = None
+
+    offshore = None
 
     ## Combine resulting region masks and convert back to original CRS for saving
     region_masks = gpd.GeoDataFrame(

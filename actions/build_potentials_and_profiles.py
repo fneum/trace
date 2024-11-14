@@ -294,14 +294,14 @@ def do_main():
                 snakemake.input["gebco"], codes=func, crs=crs_gebco, nodata=9999
             )
 
-        if technology_details["gebco"]["max_slope"]:
-            func = functools.partial(
-                np.less_equal, technology_details["gebco"]["max_slope"]
-            )
-            # Hand temporary raster file to excl. calculator
-            excluder.add_raster(
-                snakemake.input["gebco_slope"], crs="ESRI:54009", codes=func
-            )
+        # if technology_details["gebco"]["max_slope"]:
+        #     func = functools.partial(
+        #         np.less_equal, technology_details["gebco"]["max_slope"]
+        #     )
+        #     # Hand temporary raster file to excl. calculator
+        #     excluder.add_raster(
+        #         snakemake.input["gebco_slope"], crs="ESRI:54009", codes=func
+        #     )
 
     if technology_details["copernicus"]:
         logger.info("Adding Copernicus Land Cover information...")

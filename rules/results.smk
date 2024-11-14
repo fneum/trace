@@ -54,6 +54,7 @@ rule extract_result:
 rule extract_weighted_generator_timeseries:
     input:
         network="results/{scenario}/{year}/{esc}/{exporter}-{importer}/network.nc",
+        network_ip_as="resources/networks_ip_as/{scenario}/{year}/{esc}/{exporter}-{importer}/network.nc"
     output:
         timeseries="results/{scenario}/{year}/{esc}/{exporter}-{importer}/weighted_p_max_pu.nc",
     threads: 1

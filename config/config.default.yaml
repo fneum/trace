@@ -10,9 +10,9 @@ remote:
   path: "SCRATCH/projects/import-benefits/trace"
 
 scenarios:
-  low-electrolysis-75:
+  high-electrolysis-150:
     modifiers:
-      CAPEX_electrolysis: 0.75
+      CAPEX_electrolysis: 1.5
   low-electrolysis-50:
     modifiers:
       CAPEX_electrolysis: 0.5
@@ -129,7 +129,7 @@ renewables:
 
   # Ignore renewable classes below this capacity [MW]
   # when create the supply curves and attaching RES to each network
-  ignore_capacities_below: 30
+  ignore_capacities_below: 1
 
   wind_onshore:
 
@@ -510,16 +510,6 @@ regions:
   - United States -> Alaska
   MX:
   - Mexico
-  GE:
-  - Georgia
-  AZ:
-  - Azerbaijan
-  QA:
-  - Qatar
-  AE:
-  - United Arab Emirates
-  KW:
-  - Kuwait
   TM:
   - Turkmenistan
   UZ:
@@ -528,14 +518,8 @@ regions:
   - Mongolia
   PK:
   - Pakistan
-  VN:
-  - Vietnam
-  MM:
-  - Myanmar
   TH:
   - Thailand
-  LK:
-  - Sri Lanka
   ZA:
   - South Africa
   KE:
@@ -595,34 +579,10 @@ regions:
   - India -> Manipur
   - India -> Tripura
   - India -> Mizoram
-  IS:
-  - Iceland
-  IL:
-  - Israel
-  SD:
-  - Sudan
-  SY:
-  - Syria
-  YE:
-  - Yemen
-  JO:
-  - Jordan
-  IR:
-  - Iran
-  IQ:
-  - Iraq
-  AF:
-  - Afghanistan
-  SO:
-  - Somalia
   MG:
   - Madagascar
-  DJ:
-  - Djibouti
   BO:
   - Bolivia
-  VE:
-  - Venezuela
 
 detour_factors:
   transmission_line: 1.2
@@ -632,71 +592,45 @@ detour_factors:
 # Which technology-data version to use for cost assumptions
 # May be either a branch (like e.g. "master") or a full-commit hash
 # see: https://github.com/PyPSA/technology-data
-technology_data: "v0.9.1"
+technology_data: 40675bf
 
 time_resolution: "3h"
 
 load_shedding: false
 
+demand_factor: 1 # factor applied projected electricity demand, e.g. to account for electrification of other sectors
+
 solver:
   pypsa-eur:              # based on: https://github.com/PyPSA/pypsa-eur/blob/master/config.default.yaml (works well)
     name: gurobi
-    # Presolve: 1           # Conservative presolving; Aggressive consumes too much memory
-    # PreSparsify: 2        # Force sparsify reduction in an attempt to reduce memory consumption
     method: 2             # barrier
     crossover: 0
     BarConvTol: 1.e-4
-    FeasibilityTol: 1.e-6
     AggFill: 0
     PreDual: 0
     GURO_PAR_BARDENSETHRESH: 200
-    threads: 4            # Less threads less memory; more threads sometimes faster
+    threads: 2
     seed: 10              # Consistent seed for all plattforms
   default:
     name: gurobi
-    Presolve: 1           # Conservative presolving; Aggressive consumes too much memory
     BarHomogeneous: 1     # Use homogeneous barrier if standard does not converge
-    PreDual: 2            # form primal and dual during presolve, heuristically choose
     method: 2             # barrier
     crossover: 0          # do not use crossover
-    BarConvTol: 1.e-5
-    FeasibilityTol: 1.e-5
-    OptimalityTol: 1.e-5
-    threads: 4
-    seed: 10              # Consistent seed for all plattforms
-  numeric-focus:
-    name: gurobi
-    NumericFocus: 3       # Favour numeric stability over speed
-    method: 2             # barrier
-    crossover: 0          # do not use crossover
-    BarHomogeneous: 1     # Use homogeneous barrier if standard does not converge
-    BarConvTol: 1.e-5
-    FeasibilityTol: 1.e-4
-    OptimalityTol: 1.e-4
-    ObjScale: -0.5
-    threads: 8
-    seed: 10              # Consistent seed for all plattforms
-  numeric-focus-scaled:
-    name: gurobi
-    NumericFocus: 3       # Favour numeric stability over speed
-    method: 2             # barrier
-    crossover: 0          # do not use crossover
-    BarHomogeneous: 1     # Use homogeneous barrier if standard does not converge
-    ScaleFlag: 3
-    BarConvTol: 1.e-5
-    FeasibilityTol: 1.e-4
-    OptimalityTol: 1.e-4
-    ObjScale: 100
-    threads: 8
-    seed: 10              # Consistent seed for all plattforms
+    BarConvTol: 1.e-4
+    threads: 2
+    seed: 20              # Consistent seed for all plattforms
   fallback:
-        # Use gurobi defaults
+    # Use gurobi defaults
     name: gurobi
-    crossover: 0
-    method: 2             # barrier
-    BarHomogeneous: 1     # Use homogeneous barrier if standard does not converge
-    BarConvTol: 1.e-5
-    FeasibilityTol: 1.e-5
-    OptimalityTol: 1.e-5
-    seed: 10              # Consistent seed for all plattforms
-    threads: 8
+    seed: 30              # Consistent seed for all plattforms
+    BarConvTol: 1.e-4
+    threads: 2
+  # numeric-focus:
+  #   name: gurobi
+  #   NumericFocus: 2       # Favour numeric stability over speed
+  #   method: 2             # barrier
+  #   crossover: 0          # do not use crossover
+  #   BarHomogeneous: 1     # Use homogeneous barrier if standard does not converge
+  #   BarConvTol: 1.e-4
+  #   threads: 2
+  #   seed: 40              # Consistent seed for all plattforms

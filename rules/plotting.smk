@@ -8,21 +8,27 @@ rule plot_supply_curves:
         lcoes="results/{scenario}/{year}/{esc}/{exporter}-{importer}/lcoes.csv",
     output:
         fig=multiext(
-            "results/{scenario}/{year}/{esc}/{exporter}-{importer}/supply-curves",
+            "results/figures/{scenario}_{year}_{esc}_{exporter}_{importer}_supply-curves",
             ".png",
-            ".html",
+            ".pdf",
         ),
     threads: 1
     params:
         scenario=lambda w: get_scenario(w["scenario"]),
-    log:
-        python="logs/{scenario}/{year}/{esc}/{exporter}-{importer}/plot_supply_curves.log",
-        notebook=(
-            "logs/{scenario}/{year}/{esc}/{exporter}-{importer}/plot_supply_curves.ipynb"
-        ),
+    # log:
+    #     python="logs/{scenario}/{year}/{esc}/{exporter}-{importer}/plot_supply_curves.log",
+    #     # notebook=(
+    #     #     "logs/{scenario}/{year}/{esc}/{exporter}-{importer}/plot_supply_curves.ipynb"
+    #     # ),
     notebook:
         "../actions/plot_supply_curves.py.ipynb"
 
+rule collection_plot_supply_curves:
+    input:
+        expand(
+            "results/figures/default_2040_shipping-lh2_{exporter}_T0500_supply-curves.pdf",
+            exporter=["AR-South", "CL", "EH", "MA", "MR", "TN", "LY", "DZ", "SA", "AU-West", "AU-East", "NA", "EG", "UA", "TR", "AO", "US-South", "US-Southeast", "CA-East", "SA"]
+        ),
 
 rule plot_generation:
     message:

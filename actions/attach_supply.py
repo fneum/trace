@@ -69,7 +69,9 @@ if __name__ == "__main__":
     )
     supply = supply.where(np.logical_not(_mask))
 
-    capacities = supply["capacities"]
+    # double density in China
+    factor = 2 if "CN" in snakemake.wildcards["from"] else 1
+    capacities = supply["capacities"] * factor
     capacity_factors = supply["profiles"].mean(dim="time")
 
     # Determine which generation capacities are available for export

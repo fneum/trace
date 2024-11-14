@@ -13,10 +13,11 @@ if __name__ == "__main__":
     configure_logging(snakemake)
 
     network = pypsa.Network(snakemake.input.network)
+    network_ip_as = pypsa.Network(snakemake.input.network_ip_as)
 
-    # Total optimal capacity per carrier
-    p_nom_opt = network.generators.groupby("carrier").sum()["p_nom_opt"].to_xarray()
-    p_nom_opt = p_nom_opt.rename({"carrier": "technology"})
+    # Total potential per carrier
+    p_nom_max = network.generators.groupby("carrier").sum()["p_nom_max"].to_xarray()
+    p_nom_max = p_nom_max.rename({"carrier": "technology"})
 
     total_capacity_per_carrier = network.generators.groupby(
         by="carrier", axis="index"
@@ -28,7 +29,7 @@ if __name__ == "__main__":
     )
 
     weighted_p_max = (
-        (network.generators_t["p_max_pu"] * network.generators["p_nom_opt"])
+        (network_ip_as.generators_t["p_max_pu"] * network.generators["p_nom_opt"])
         .groupby(by=groups, axis="columns")
         .sum()
     )
@@ -43,6 +44,6 @@ if __name__ == "__main__":
         .to_xarray()
     )
 
-    ds = xr.merge([p_nom_opt, weighted_p_max_pu])
+    ds = xr.merge([p_nom_max, weighted_p_max_pu])
 
     ds.to_netcdf(snakemake.output[0])

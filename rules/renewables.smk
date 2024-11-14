@@ -233,7 +233,7 @@ rule build_potentials_and_profiles:
     input:
         copernicus="resources/Copernicus_LC100_global_v3.0.1_2019-nrt_Discrete-Classification-map_EPSG-4326.tif",
         gebco="resources/gebco/GEBCO_2021.nc",
-        gebco_slope="resources/gebco/GEBCO_2021_slope.nc",
+        # gebco_slope="resources/gebco/GEBCO_2021_slope.nc",
         wdpa="resources/WDPA.gpkg",
         wdpa_marine="resources/WDPA_WDOECM_marine.gpkg",
         shipping_routes="resources/shipdensity/shipdensity_global.tif",

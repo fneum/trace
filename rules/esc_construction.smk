@@ -15,6 +15,7 @@ rule download_technology_data:
         ),
     output:
         "data/technology-data/outputs/costs_{year}.csv",
+    localrule: True
     run:
         move(input[0], output[0])
 
@@ -25,6 +26,7 @@ rule create_additional_components:
     threads: 1
     log:
         python="logs/create_additional_components.log",
+    localrule: True
     script:
         "../actions/create_additional_components.py"
 
@@ -40,8 +42,9 @@ rule create_network:
         additional_components="resources/additional_components.pkl",
     output:
         network="resources/networks/{scenario}/{year}/{esc}/{from}-{to}/network.nc",
-    group:
-        "esc"
+    # group:
+    #     "esc"
+    localrule: True
     params:
         scenario=lambda w: get_scenario(w["scenario"]),
         era_year=config["renewables"]["era5_year"],
