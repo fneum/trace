@@ -498,7 +498,7 @@ dependencies:
   - zstandard=0.23.0
   - zstd=1.5.6
   - pip:
-      - atlite==0.2.14.dev15+gbb568a7
+      - atlite==0.2.14
       - geojson==3.1.0
       - haversine==2.8.1
       - oauthlib==3.2.2
