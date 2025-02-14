@@ -214,8 +214,7 @@ forbidden_combinations = {
 # In[30]:
 
 
-# years = [2030, 2050]
-years = [2040]
+years = [2030, 2040, 2050]
 # scenarios = ["default", "low-electrolysis-50", "cavern-h2-storage"]
 scenarios = ["default"]
 scenario_list = []
